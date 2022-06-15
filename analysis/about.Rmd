@@ -8,3 +8,6 @@ editor_options:
 ---
 
 Describe your project.
+
+1) Analise de variancia Summer
+2) plots descritivos

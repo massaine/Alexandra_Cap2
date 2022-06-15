@@ -30,5 +30,6 @@ Cullis_H2 <- function(model, geno_label = "GENO") {
   out_list <- list("avsed" = avsed, "H2" = H2)
   return(out_list)
 }
+
 ```
 
