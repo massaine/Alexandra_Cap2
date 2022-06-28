@@ -17,7 +17,7 @@ library(viridis)
 library(gridExtra)
 library(sommer)
 
-dados <- read.table(here::here("data", "Planilha epocas Maio22_v2.txt"), header=T, sep="\t", na.strings="NA")
+dados <- read.table(here::here("data", "Planilha epocas Junho22.txt"), header=T, sep="\t", na.strings="NA")
 dados <- dados[!is.na(dados$Ano),]
 dados$Obs <- factor(dados$Obs)
 dados <- dados[dados$Obs=="Ok",]
@@ -31,7 +31,7 @@ dados$Ramificacao <- factor(dados$Ramificacao)
 dadost0 <- subset(dados,dados$Ramificacao=="Ram0")
 dadost0$CompR <- as.numeric(dadost0$CompR)
 
-dados1 <- read.table(here::here("data", "DadosEpocas_NotaFlores.txt"), header=T, sep="\t", na.strings="NA", strip.white=TRUE, check.names=FALSE)
+dados1 <- read.table(here::here("data", "DadosEpocas_NotaFloresV2.txt"), header=T, sep="\t", na.strings="NA", strip.white=TRUE, check.names=FALSE)
 dados1$bloco <- as.factor(dados1$bloco)
 dados1$Acession_name <- as.factor(dados1$Acession_name)
 dados1$Epoca <- as.factor(dados1$Epoca)
@@ -39,7 +39,7 @@ dados1$NP <- sqrt(dados1$NP)
 dados1$NM <- sqrt(dados1$NM)
 dados1 <- dados1[!dados1$Acession_name=="BGM-0945",]
 dados1 <- dados1[!dados1$Acession_name=="BRS-PotiBranca",]
-dados1 <- dados1[,c(4,27:28)]
+dados1 <- dados1[,c(4,30:31)]
 
 dados2 <- merge(dadost0, dados1, by = "plot_name", all.x=T)
 head(dados2)
@@ -49,31 +49,39 @@ head(dados2)
 ```{r}
 model <- list()
 dados3 <- dados2[,c("Acession_name","bloco","plant_number","Epoca",
-                    "DAPR300", "NumEvRam","Altura.total","CompR",
-                    "NM","NP")]
+                    "DAPR1ano","DAPR1ano_Ext", "NumEvRam","Altura.total","CompR",
+                    "NM","NP","NumTFruto", "NumTSem")]
 
+dados3$NumTFruto <- sqrt(dados3$NumTFruto)
+dados3$NumTSem <- sqrt(dados3$NumTSem)
+
+traits <- c("DAPR1ano_Ext", "NumEvRam","CompR","NM","NP","NumTFruto")
 blupsL <- list()
 model <- list()
 analise <- list()
-parametros <- matrix(NA,ncol=7,nrow=5)
+parametros <- matrix(NA,ncol=7,nrow=length(traits))
 parametrosL <- list()
 
+j=4
+
 for (j in 1:4) {
-  
-  model[[j]] <-  mmer(fixed = cbind(DAPR300, NumEvRam,CompR,NM,NP) ~ bloco, tolparinv = 0.5,
-            random = ~ Acession_name, getPEV = T, data = subset(dados3,dados3$Epoca==j) %>%                     droplevels(.$bloco))
+
+  model[[j]] <- mmer(fixed =  cbind(DAPR1ano_Ext, NumEvRam,CompR,NM,NP,NumTFruto)
+                     ~ bloco, tolparinv = 0.5,
+              random = ~ Acession_name, getPEV = T, data = subset(dados3,dados3$Epoca==j) %>%                     
+              droplevels(.$bloco))
   
   blups <- do.call(cbind,model[[j]]$U$Acession_name)
   Var_Cor <- as.data.frame(do.call(rbind,model[[j]]$sigma)) 
 
-  for (i in 1:5) {  
+  for (i in 1:length(traits)) {  
   #vblup <- sqrt(mean(diag(model[[1]]$PevU$Acession_name[[i]])))
-    parametros[i,2] <- rownames(Var_Cor)[i]
-   parametros[i,3] <- round(Var_Cor[i,i]/(Var_Cor[i,i] + (Var_Cor[5+i,i]/3)),2)
+   parametros[i,2] <- rownames(Var_Cor)[i]
+   parametros[i,3] <- round(Var_Cor[i,i]/(Var_Cor[i,i] + (Var_Cor[length(traits)+i,i]/3)),2)
    #parametros[i,4] <- 1 - (vblup / (2 * Var_Cor[i,i])) ## cullis
    parametros[i,5] <- round(subset(model[[j]]$Beta,model[[j]]$Beta$Effect=="(Intercept)")[i,3],2)
    parametros[i,6] <- round(Var_Cor[i,i],2)
-   parametros[i,7] <- round(Var_Cor[5+i,i],2)
+   parametros[i,7] <- round(Var_Cor[length(traits)+i,i],2)
    blups[,i] <- blups[,i]+subset(model[[j]]$Beta,model[[j]]$Beta$Effect=="(Intercept)")[i,3]
   }
   blupsL[[j]] <- blups 
@@ -82,15 +90,11 @@ for (j in 1:4) {
    
 }  
 
-
-    
-  
-
 Var_Cor$Componemte <- rep(c("Genetica","Residual"),each=5)
 
 MM$PevU
-MM$
 
+save(Var_Cor,parametrosL,  blups,model, file=here::here("output","resultados.RData"))
 
 ```
 
