@@ -94,8 +94,8 @@ Var_Cor$Componemte <- rep(c("Genetica","Residual"),each=5)
 
 MM$PevU
 
-save(Var_Cor,parametrosL,  blups,model, file=here::here("output","resultados.RData"))
-
+save(Var_Cor,parametrosL,  blupsL,model, file=here::here("output","resultados.RData"))
+save.image(file=here::here("output","Modelo.RData"))
 ```
 
 
