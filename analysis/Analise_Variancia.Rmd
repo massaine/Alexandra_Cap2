@@ -62,8 +62,6 @@ analise <- list()
 parametros <- matrix(NA,ncol=7,nrow=length(traits))
 parametrosL <- list()
 
-j=4
-
 for (j in 1:4) {
 
   model[[j]] <- mmer(fixed =  cbind(DAPR1ano_Ext, NumEvRam,CompR,NM,NP,NumTFruto)
@@ -90,13 +88,14 @@ for (j in 1:4) {
    
 }  
 
-Var_Cor$Componemte <- rep(c("Genetica","Residual"),each=5)
-
-MM$PevU
+Var_Cor$Componemte <- rep(c("Genetica","Residual"),each=6)
+Res.parametros <- do.call(rbind,parametrosL)
+colnames(Res.parametros) <- c("Epoca","Trait","Herdabilidade","H.Cullis","Media","Variancia","Residuo")
 
 save(Var_Cor,parametrosL,  blupsL,model, file=here::here("output","resultados.RData"))
+save(blupsL,dados3,file=here::here("output","blups_EP.RData"))
 save.image(file=here::here("output","Modelo.RData"))
+
+
 ```
-
-
 

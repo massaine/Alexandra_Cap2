@@ -1,0 +1,282 @@
+---
+title: "PCA"
+author: "massaine"
+date: "2022-07-01"
+output: workflowr::wflow_html
+editor_options:
+  chunk_output_type: console
+---
+
+## Introduction
+
+```{r}
+library(gdata)
+library(ggfortify)
+library(stringr)
+library(ggplot2)
+library(RColorBrewer)
+library(ggpubr)
+library(gridExtra)
+library(adegenet)
+library(factoextra)
+library(RColorBrewer)
+library(dplyr)
+library(viridis)
+
+load(file=here::here("output","blups_EP.RData"))
+```
+
+## EP 1
+```{r}
+rownames(blupsL[[1]]) <- gsub("Acession_name","",rownames(blupsL[[1]]))
+colnames(blupsL[[1]]) <- c("ND1R","NER","A1R","NM","NP","NTF")
+
+dadosPCA3 <- as.data.frame(scale(blupsL[[1]], center = TRUE, scale = TRUE))
+
+pca_raw <- prcomp(dadosPCA3)
+pcaplot <- autoplot(pca_raw, data = blupsL[[1]]) + theme_bw() + 
+  ylim(-0.5, 0.5) + xlim(-0.5, 0.5) + 
+  ggtitle("EP1 - PCA") +  theme(legend.title = element_blank()) 
+
+plotKMEANS1 <- fviz_nbclust(dadosPCA3, kmeans, method = "silhouette")
+k2.1 <- kmeans(dadosPCA3, centers = 2, nstart = 25)
+p3.1 <- fviz_cluster(k2.1,  data = dadosPCA3) + ggtitle("Epoca 1") + theme_bw()
+dadosPCA3$cluster <- as.factor(k2.1$cluster)
+
+
+pca1 <- autoplot(pca_raw, data = dadosPCA3, colour = 'cluster', 
+                 label = TRUE, label.size = 3, loadings = TRUE, loadings.label = TRUE, 
+                 loadings.label.size = 5,loadings.colour='gray') + ylim(-0.55, 0.5) + xlim(-0.5, 0.5) +  
+                scale_colour_manual(values=c("#7AD151FF","#2A788EFF","#440154FF","#FDE725FF")) +  
+                  theme_bw() + ggtitle("Epoca 1") 
+
+ep1 <- as.data.frame(cbind(blupsL[[1]],as.factor(k2.1$cluster)))
+colnames(ep1)[7] <- "cluster"
+PCi_1<-data.frame(pca_raw$x,Cluster=dadosPCA3$cluster)
+table(ep1$cluster)
+
+```
+
+## EP 2
+```{r}
+rownames(blupsL[[2]]) <- gsub("Acession_name","",rownames(blupsL[[2]]))
+colnames(blupsL[[2]]) <-c("ND1R","NER","A1R","NM","NP","NTF")
+
+dadosPCA3 <- as.data.frame(scale(blupsL[[2]], center = TRUE, scale = TRUE))
+
+pca_raw <- prcomp(dadosPCA3)
+pcaplot <- autoplot(pca_raw, data = blupsL[[2]]) + theme_bw() + 
+  ylim(-0.5, 0.5) + xlim(-0.5, 0.5) + 
+  ggtitle("EP2 - PCA") +  theme(legend.title = element_blank()) 
+
+plotKMEANS2 <- fviz_nbclust(dadosPCA3, kmeans, method = "silhouette")
+k2.2 <- kmeans(dadosPCA3, centers = 2, nstart = 25)
+p3.2 <- fviz_cluster(k2.2,  data = dadosPCA3) + ggtitle("Epoca 2") + theme_bw()
+dadosPCA3$cluster <- as.factor(k2.2$cluster)
+
+
+pca2 <- autoplot(pca_raw, data = dadosPCA3, colour = 'cluster', 
+                 label = TRUE, label.size = 3, loadings = TRUE, loadings.label = TRUE, 
+                 loadings.label.size = 5,loadings.colour='gray') + ylim(-0.55, 0.5) + xlim(-0.5, 0.5) +  
+                scale_colour_manual(values=c("#7AD151FF","#2A788EFF","#440154FF","#FDE725FF")) +  
+                  theme_bw() + ggtitle("Epoca 2") 
+
+ep2 <- as.data.frame(cbind(blupsL[[2]],as.factor(k2.2$cluster)))
+colnames(ep2)[7] <- "cluster"
+PCi_2<-data.frame(pca_raw$x,Cluster=dadosPCA3$cluster)
+table(ep2$cluster)
+```
+
+## EP 3
+```{r}
+rownames(blupsL[[3]]) <- gsub("Acession_name","",rownames(blupsL[[3]]))
+colnames(blupsL[[3]]) <-c("ND1R","NER","A1R","NM","NP","NTF")
+
+dadosPCA3 <- as.data.frame(scale(blupsL[[3]], center = TRUE, scale = TRUE))
+pca_raw <- prcomp(dadosPCA3)
+pcaplot <- autoplot(pca_raw, data = blupsL[[3]]) + theme_bw() + 
+  ylim(-0.5, 0.5) + xlim(-0.5, 0.5) + 
+  ggtitle("ep3 - PCA") +  theme(legend.title = element_blank()) 
+
+plotKMEANS3 <- fviz_nbclust(dadosPCA3, kmeans, method = "silhouette")
+k2.3 <- kmeans(dadosPCA3, centers = 5, nstart = 25)
+p3.3 <- fviz_cluster(k2.3,  data = dadosPCA3) + ggtitle("Epoca 2") + theme_bw()
+dadosPCA3$cluster <- as.factor(k2.3$cluster)
+
+pca3 <- autoplot(pca_raw, data = dadosPCA3, colour = 'cluster', 
+                 label = TRUE, label.size = 3, loadings = TRUE, loadings.label = TRUE, 
+                 loadings.label.size = 5,loadings.colour='gray') + ylim(-0.55, 0.5) + xlim(-0.5, 0.5) +  
+                 scale_colour_manual(values=c("#7AD151FF","#2A788EFF","darkorchid3","orange","black")) +  
+                 theme_bw() + ggtitle("Epoca 3") 
+
+ep3 <- as.data.frame(cbind(blupsL[[3]],as.factor(k2.3$cluster)))
+colnames(ep3)[7] <- "cluster"
+PCi_3<-data.frame(pca_raw$x,Cluster=dadosPCA3$cluster)
+table(ep3$cluster)
+```
+
+
+## EP4
+```{r}
+rownames(blupsL[[4]]) <- gsub("Acession_name","",rownames(blupsL[[4]]))
+colnames(blupsL[[4]]) <-c("ND1R","NER","A1R","NM","NP","NTF")
+dadosPCA3 <- as.data.frame(scale(blupsL[[4]], center = TRUE, scale = TRUE))
+
+pca_raw <- prcomp(dadosPCA3)
+pcaplot <- autoplot(pca_raw, data = blupsL[[4]]) + theme_bw() + 
+  ylim(-0.5, 0.5) + xlim(-0.5, 0.5) + 
+  ggtitle("ep4 - PCA") +  theme(legend.title = element_blank()) 
+
+plotKMEANS4 <- fviz_nbclust(dadosPCA3, kmeans, method = "silhouette")
+k2.4 <- kmeans(dadosPCA3, centers = 4, nstart = 25)
+p3.4 <- fviz_cluster(k2.4,  data = dadosPCA3) + ggtitle("Epoca 2") + theme_bw()
+dadosPCA3$cluster <- as.factor(k2.4$cluster)
+
+pca4 <- autoplot(pca_raw, data = dadosPCA3, colour = 'cluster', 
+                 label = TRUE, label.size = 3, loadings = TRUE, loadings.label = TRUE, 
+                 loadings.label.size = 5,loadings.colour='gray') + ylim(-0.55, 0.5) + xlim(-0.5, 0.5) +  
+                scale_colour_manual(values=c("#7AD151FF","#2A788EFF","#440154FF","orange","black")) +  
+                  theme_bw() + ggtitle("Epoca 4") 
+
+ep4 <- as.data.frame(cbind(blupsL[[4]],as.factor(k2.4$cluster)))
+colnames(ep4)[7] <- "cluster"
+PCi_4 <- data.frame(pca_raw$x,Cluster=dadosPCA3$cluster)
+table(ep4$cluster)
+
+```
+
+## plots
+```{r}
+tiff(file = "Figura_PCA_Epocas.tiff", width = 26, height = 26, res = 700, compression = "lzw", units = "cm")
+grid.arrange(pca1,
+             pca2,
+             pca3,
+             pca4,ncol=2)
+dev.off()
+
+tiff(file = "Figura_Kmeans.tiff", width = 30, height = 8, res = 700, compression = "lzw", units = "cm")
+grid.arrange(plotKMEANS1,
+             plotKMEANS2,
+             plotKMEANS3,
+             plotKMEANS4,
+             ncol=4)
+dev.off()
+```
+
+## PLOTS CLUSTERS EP1
+```{r}
+p1 <- ggplot(ep1, aes(x=as.factor(cluster), y=NP, fill=as.factor(cluster))) + xlab("Cluster") +
+  geom_boxplot(outlier.shape = NA)  +  theme_bw() + theme(legend.position="none") + ggtitle("Epoca 1")+
+  ylim(2, 16)+scale_fill_manual(values = c("#7AD151FF","#2A788EFF","#440154FF","#FDE725FF")) 
+
+p2 <- ggplot(ep1, aes(x=as.factor(cluster), y=NM, fill=as.factor(cluster))) +  xlab("Cluster") +
+  geom_boxplot(outlier.shape = NA) + theme_bw() + theme(legend.position="none") + ggtitle(" ") + ylim(0.2, 0.8) +   scale_fill_manual(values = c("#7AD151FF","#2A788EFF","#440154FF","#FDE725FF")) 
+
+p3 <- ggplot(ep1, aes(x=as.factor(cluster), y=ND1R, fill=as.factor(cluster))) +  xlab("Cluster") +
+  geom_boxplot(outlier.shape = NA)   + theme_bw()+  theme(legend.position="none")  +ggtitle(" ") + ylim(100, 300) + scale_fill_manual(values = c("#7AD151FF","#2A788EFF","#440154FF","#FDE725FF")) 
+
+p4 <- ggplot(ep1, aes(x=as.factor(cluster), y=NER, fill=as.factor(cluster))) +  xlab("Cluster") +
+  geom_boxplot(outlier.shape = NA)+ theme_bw() +  theme(legend.position="none") +ggtitle(" ") +ylim(1.5, 7)+   scale_fill_manual(values = c("#7AD151FF","#2A788EFF","#440154FF","#FDE725FF")) 
+
+p5 <- ggplot(ep1, aes(x=as.factor(cluster), y=NTF, fill=as.factor(cluster))) +  xlab("Cluster") +
+  geom_boxplot(outlier.shape = NA)   + theme_bw()  +   theme(legend.position="none") + ggtitle(" ") + 
+  ylim(0, 1.2)+ scale_fill_manual(values = c("#7AD151FF","#2A788EFF","#440154FF","#FDE725FF")) 
+
+p6 <- ggplot(ep1, aes(x=as.factor(cluster), y=A1R, fill=as.factor(cluster))) +  xlab("Cluster") +
+  geom_boxplot(outlier.shape = NA)   + theme_bw()  +   theme(legend.position="none") + ggtitle(" ") + 
+  ylim(0, 200)+ scale_fill_manual(values = c("#7AD151FF","#2A788EFF","#440154FF","#FDE725FF")) 
+
+grid.arrange(p1,p2,p3,p4,p5,p6, ncol=6)
+
+```
+
+## PLOTS CLUSTERS EP2
+```{r}
+g1 <- ggplot(ep2, aes(x=as.factor(cluster), y=NP, fill=as.factor(cluster))) + xlab("Cluster") +
+  geom_boxplot(outlier.shape = NA)  +  theme_bw() + theme(legend.position="none") +ggtitle("Epoca 2")+
+  ylim(2, 16)+scale_fill_manual(values = c("#7AD151FF","#2A788EFF","#440154FF","#FDE725FF")) 
+
+g2 <- ggplot(ep2, aes(x=as.factor(cluster), y=NM, fill=as.factor(cluster))) +  xlab("Cluster") +
+  geom_boxplot(outlier.shape = NA) + theme_bw() + theme(legend.position="none") + ggtitle(" ") + ylim(0.2, 0.8) +   scale_fill_manual(values = c("#7AD151FF","#2A788EFF","#440154FF","#FDE725FF")) 
+
+g3 <- ggplot(ep2, aes(x=as.factor(cluster), y=ND1R, fill=as.factor(cluster))) +  xlab("Cluster") +
+  geom_boxplot(outlier.shape = NA)   + theme_bw()+  theme(legend.position="none")  +ggtitle(" ") + ylim(100, 300) + scale_fill_manual(values = c("#7AD151FF","#2A788EFF","#440154FF","#FDE725FF")) 
+
+g4 <- ggplot(ep2, aes(x=as.factor(cluster), y=NER, fill=as.factor(cluster))) +  xlab("Cluster") +
+  geom_boxplot(outlier.shape = NA)+ theme_bw() +  theme(legend.position="none") +ggtitle(" ") +ylim(1.5, 7)+   scale_fill_manual(values = c("#7AD151FF","#2A788EFF","#440154FF","#FDE725FF")) 
+
+g5 <- ggplot(ep2, aes(x=as.factor(cluster), y=NTF, fill=as.factor(cluster))) +  xlab("Cluster") +
+  geom_boxplot(outlier.shape = NA)   + theme_bw()  +   theme(legend.position="none") + ggtitle(" ") + 
+  ylim(0, 1.2)+ scale_fill_manual(values = c("#7AD151FF","#2A788EFF","#440154FF","#FDE725FF")) 
+
+g6 <- ggplot(ep2, aes(x=as.factor(cluster), y=A1R, fill=as.factor(cluster))) +  xlab("Cluster") +
+  geom_boxplot(outlier.shape = NA)   + theme_bw()  +   theme(legend.position="none") + ggtitle(" ") + 
+  ylim(0, 200)+ scale_fill_manual(values = c("#7AD151FF","#2A788EFF","#440154FF","#FDE725FF")) 
+
+grid.arrange(g1,g2,g3,g4,g5,g6, ncol=6)
+```
+ 
+
+## plots ep 3
+```{r}
+h1 <- ggplot(ep3, aes(x=as.factor(cluster), y=NP, fill=as.factor(cluster))) + xlab("Cluster") +
+  geom_boxplot(outlier.shape = NA)  +  theme_bw() + theme(legend.position="none") +ggtitle("Epoca 3")+
+  ylim(2, 16)+scale_fill_manual(values = c("#7AD151FF","#2A788EFF","darkorchid3","orange","black")) 
+
+h2 <- ggplot(ep3, aes(x=as.factor(cluster), y=NM, fill=as.factor(cluster))) +  xlab("Cluster") +
+  geom_boxplot(outlier.shape = NA) + theme_bw() + theme(legend.position="none") + ggtitle(" ") + ylim(0.2, 0.8) +   scale_fill_manual(values = c("#7AD151FF","#2A788EFF","darkorchid3","orange","black")) 
+
+h3 <- ggplot(ep3, aes(x=as.factor(cluster), y=ND1R, fill=as.factor(cluster))) +  xlab("Cluster") +
+  geom_boxplot(outlier.shape = NA)   + theme_bw()+  theme(legend.position="none")  +ggtitle(" ") + ylim(100, 300) + scale_fill_manual(values = c("#7AD151FF","#2A788EFF","darkorchid3","orange","black")) 
+
+h4 <- ggplot(ep3, aes(x=as.factor(cluster), y=NER, fill=as.factor(cluster))) +  xlab("Cluster") +
+  geom_boxplot(outlier.shape = NA)+ theme_bw() +  theme(legend.position="none") +ggtitle(" ") +ylim(1.5, 7)+   scale_fill_manual(values = c("#7AD151FF","#2A788EFF","darkorchid3","orange","black")) 
+
+h5 <- ggplot(ep3, aes(x=as.factor(cluster), y=NTF, fill=as.factor(cluster))) +  xlab("Cluster") +
+  geom_boxplot(outlier.shape = NA)   + theme_bw()  +   theme(legend.position="none") + ggtitle(" ") + 
+  ylim(0, 1.2)+ scale_fill_manual(values = c("#7AD151FF","#2A788EFF","darkorchid3","orange","black")) 
+
+h6 <- ggplot(ep3, aes(x=as.factor(cluster), y=A1R, fill=as.factor(cluster))) +  xlab("Cluster") +
+  geom_boxplot(outlier.shape = NA)   + theme_bw()  +   theme(legend.position="none") + ggtitle(" ") + 
+  ylim(0, 200)+ scale_fill_manual(values = c("#7AD151FF","#2A788EFF","darkorchid3","orange","black")) 
+
+grid.arrange(h1,h2,h3,h4,h5,h6, ncol=6)
+```
+
+## plots ep 4
+```{r}
+d1 <- ggplot(ep4, aes(x=as.factor(cluster), y=NP, fill=as.factor(cluster))) + xlab("Cluster") +
+  geom_boxplot(outlier.shape = NA)  +  theme_bw() + theme(legend.position="none") +ggtitle("Epoca 4")+
+  ylim(2, 16)+scale_fill_manual(values = c("#7AD151FF","#2A788EFF","darkorchid3","orange","black")) 
+
+d2 <- ggplot(ep4, aes(x=as.factor(cluster), y=NM, fill=as.factor(cluster))) +  xlab("Cluster") +
+  geom_boxplot(outlier.shape = NA) + theme_bw() + theme(legend.position="none") + ggtitle(" ") + ylim(0.2, 0.8) +   scale_fill_manual(values = c("#7AD151FF","#2A788EFF","darkorchid3","orange","black")) 
+
+d3 <- ggplot(ep4, aes(x=as.factor(cluster), y=ND1R, fill=as.factor(cluster))) +  xlab("Cluster") +
+  geom_boxplot(outlier.shape = NA)   + theme_bw()+  theme(legend.position="none")  +ggtitle(" ") + ylim(100, 300) + scale_fill_manual(values = c("#7AD151FF","#2A788EFF","darkorchid3","orange","black")) 
+
+d4 <- ggplot(ep4, aes(x=as.factor(cluster), y=NER, fill=as.factor(cluster))) +  xlab("Cluster") +
+  geom_boxplot(outlier.shape = NA)+ theme_bw() +  theme(legend.position="none") +ggtitle(" ") +ylim(1.5, 7)+   scale_fill_manual(values = c("#7AD151FF","#2A788EFF","darkorchid3","orange","black")) 
+
+d5 <- ggplot(ep4, aes(x=as.factor(cluster), y=NTF, fill=as.factor(cluster))) +  xlab("Cluster") +
+  geom_boxplot(outlier.shape = NA)   + theme_bw()  +   theme(legend.position="none") + ggtitle(" ") + 
+  ylim(0, 1.2)+ scale_fill_manual(values = c("#7AD151FF","#2A788EFF","darkorchid3","orange","black")) 
+
+d6 <- ggplot(ep4, aes(x=as.factor(cluster), y=A1R, fill=as.factor(cluster))) +  xlab("Cluster") +
+  geom_boxplot(outlier.shape = NA)   + theme_bw()  +   theme(legend.position="none") + ggtitle(" ") + 
+  ylim(0, 200)+ scale_fill_manual(values = c("#7AD151FF","#2A788EFF","darkorchid3","orange","black")) 
+
+grid.arrange(d1,d2,d3,d4,d5,d6, ncol=6)
+```
+
+## final plot clustrs
+```{r}
+tiff(file = "Figura_Cluster.tiff", width = 24, height = 30, res = 700, compression = "lzw", units = "cm")
+grid.arrange(p1,p2,p3,p4,p5,p6,
+             g1,g2,g3,g4,g5,g6,
+             h1,h2,h3,h4,h5,h6,
+             d1,d2,d3,d4,d5,d6, ncol=6)
+dev.off()
+```
+
+

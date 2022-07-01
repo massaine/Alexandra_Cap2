@@ -1,0 +1,144 @@
+---
+title: "Plots_descritivos"
+author: "massaine"
+date: "2022-07-01"
+output: workflowr::wflow_html
+editor_options:
+  chunk_output_type: console
+---
+
+
+```{r}
+library(gdata)
+library(ggfortify)
+library(stringr)
+library(ggplot2)
+library(RColorBrewer)
+library(ggpubr)
+library(gridExtra)
+library(adegenet)
+library(factoextra)
+library(RColorBrewer)
+library(dplyr)
+library(viridis)
+
+load(file=here::here("output","blups_EP.RData"))
+```
+
+## BOXPLOTS descritivos
+```{r}
+ep1 <- as.data.frame(blupsL[[1]])
+ep1$clone <- rownames(ep1)
+ep1$Epoca <- 1
+ep2 <- as.data.frame(blupsL[[2]])
+ep2$clone <- rownames(ep2)
+ep2$Epoca <- 2
+ep3 <- as.data.frame(blupsL[[3]])
+ep3$clone <- rownames(ep3)
+ep3$Epoca <- 3
+ep4 <- as.data.frame(blupsL[[4]])
+ep4$clone <- rownames(ep4)
+ep4$Epoca <- 4
+BLUPs <- rbind(ep1,ep2,ep3,ep4)
+colnames(BLUPs) <- c("ND1R","NER","A1R","NM","NP","NTF","clone","Epoca")
+BLUPs$clone <- gsub("Acession_name","",BLUPs$clone)
+BLUPs$clone <- as.factor(BLUPs$clone)
+BLUPs$Epoca <- as.factor(BLUPs$Epoca)
+```
+
+## BOXPLOT GERAL
+```{r}
+c1 <- ggplot(BLUPs, aes(x=Epoca, y=NP)) + xlab("Epocas de plantio") +
+  geom_boxplot(outlier.shape = NA,fill="#7AD151FF")+theme_bw()+theme(legend.position="none")+
+  ylim(2, 16)
+
+c2 <- ggplot(BLUPs, aes(x=Epoca, y=NM)) +  xlab("Epocas de plantio") +
+  geom_boxplot(outlier.shape = NA,fill="#7AD151FF") + theme_bw() + theme(legend.position="none")+
+  ylim(0.2, 0.8)
+
+c3 <- ggplot(BLUPs, aes(x=Epoca, y=ND1R)) +  xlab("Epocas de plantio") +
+  geom_boxplot(outlier.shape = NA,fill="#7AD151FF") + theme_bw()+  theme(legend.position="none")+ 
+  ylim(100, 300) 
+
+c4 <- ggplot(BLUPs, aes(x=Epoca, y=NER)) +  xlab("Epocas de plantio") +
+  geom_boxplot(outlier.shape = NA,fill="#7AD151FF")+ theme_bw() +  theme(legend.position="none")+
+  ylim(2, 7)
+
+c5 <- ggplot(BLUPs, aes(x=Epoca, y=NTF)) +  xlab("Epocas de plantio") +
+  geom_boxplot(outlier.shape = NA,fill="#7AD151FF") + theme_bw()  +   theme(legend.position="none")+ 
+  ylim(0, 0.8)
+
+c6 <- ggplot(BLUPs, aes(x=Epoca, y=A1R)) +  xlab("Epocas de plantio") +
+  geom_boxplot(outlier.shape = NA,fill="#7AD151FF") + theme_bw()  +   theme(legend.position="none")+ 
+  ylim(25, 200)
+
+```
+
+## salvar
+```{r}
+tiff(file = "Figura_boxplot_Epocas_geral.tiff", width = 14, height = 14, res = 700, compression = "lzw", units = "cm")
+grid.arrange(c1,c2,c5,c4,c3,c6,ncol=3)
+dev.off()
+```
+
+## BOX PLOT POR GENOTIPOS
+```{r}
+NP <- ggplot(dados3, aes(x=Epoca, y=NP, fill=as.factor(Epoca))) + xlab("Epocas de plantio") +
+  geom_boxplot(outlier.shape = NA)+theme_classic()+theme(legend.position="none")+ ylab("Nota de florescimento ponderado") + ylim(2, 22) + scale_fill_manual(values = c("#7AD151FF","#2A788EFF","darkorchid3","orange")) +       facet_wrap(~Acession_name, ncol = 6)
+
+tiff(file = "NP_boxplot_Epocas_clone.tiff", width = 22, height = 26, res = 700, compression = "lzw", units = "cm")
+NP
+dev.off()
+```
+
+```{r}
+NM <- ggplot(dados3, aes(x=Epoca, y=NM, fill=as.factor(Epoca))) + xlab("Epocas de plantio") +
+  geom_boxplot(outlier.shape = NA)+theme_classic()+theme(legend.position="none")+ylab("Nota media de florescimento") + ylim(0, 1.5) + scale_fill_manual(values = c("#7AD151FF","#2A788EFF","darkorchid3","orange")) +          facet_wrap(~Acession_name, ncol = 6)
+
+tiff(file = "NM_boxplot_Epocas_clone.tiff", width = 22, height = 26, res = 700, compression = "lzw", units = "cm")
+NM
+dev.off()
+```
+
+```{r}
+NTF <- ggplot(dados3, aes(x=Epoca, y=NumTFruto, fill=as.factor(Epoca))) + xlab("Epocas de plantio") +
+  geom_boxplot(outlier.shape = NA)+theme_classic()+theme(legend.position="none")+ ylab("Numero total de frutos") +
+  ylim(0, 3) + scale_fill_manual(values = c("#7AD151FF","#2A788EFF","darkorchid3","orange")) +          facet_wrap(~Acession_name, ncol = 6)
+
+tiff(file = "NTF_boxplot_Epocas_clone.tiff", width = 22, height = 26, res = 700, compression = "lzw", units = "cm")
+NTF
+dev.off()
+```
+
+
+```{r}
+NER <- ggplot(dados3, aes(x=Epoca, y=NumEvRam, fill=as.factor(Epoca))) + xlab("Epocas de plantio") +
+  geom_boxplot(outlier.shape = NA)+theme_classic()+theme(legend.position="none")+ylab("Numero de eventos de ramificação")+ ylim(0, 9) + scale_fill_manual(values = c("#7AD151FF","#2A788EFF","darkorchid3","orange")) +          facet_wrap(~Acession_name, ncol = 6)
+
+tiff(file = "NER_boxplot_Epocas_clone.tiff", width = 22, height = 26, res = 700, compression = "lzw", units = "cm")
+NER
+dev.off()
+```
+
+
+```{r}
+DI1R <- ggplot(dados3, aes(x=Epoca, y=DAPR1ano_Ext, fill=as.factor(Epoca))) + xlab("Epocas de plantio") +
+  geom_boxplot(outlier.shape = NA)+theme_classic()+theme(legend.position="none")+ylab("Dias início de ramificação")+
+  ylim(50, 400) + scale_fill_manual(values = c("#7AD151FF","#2A788EFF","darkorchid3","orange")) +          facet_wrap(~Acession_name, ncol = 6)
+
+tiff(file = "DI1R_boxplot_Epocas_clone.tiff", width = 22, height = 26, res = 700, compression = "lzw", units = "cm")
+DI1R
+dev.off()
+```
+
+
+```{r}
+A1R <- ggplot(dados3, aes(x=Epoca, y=CompR, fill=as.factor(Epoca))) + xlab("Epocas de plantio") +
+  geom_boxplot(outlier.shape = NA)+theme_classic()+theme(legend.position="none")+ ylab("Altura da primeira ramificação")+ ylim(0, 300) + scale_fill_manual(values = c("#7AD151FF","#2A788EFF","darkorchid3","orange")) +          facet_wrap(~Acession_name, ncol = 6)
+
+tiff(file = "A1R_boxplot_Epocas_clone.tiff", width = 22, height = 26, res = 700, compression = "lzw", units = "cm")
+A1R
+dev.off()
+
+```
+
