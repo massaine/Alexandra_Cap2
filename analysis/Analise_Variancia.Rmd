@@ -10,6 +10,8 @@ editor_options:
 ## Analise de variancia Individual
 
 ```{r}
+
+
 library("lme4"); library(tidyverse)
 library("EnvStats")
 library("ggridges")
