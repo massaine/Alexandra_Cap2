@@ -10,6 +10,9 @@ editor_options:
 ## Introduction
 
 ```{r}
+library(rstatix)
+library(emmeans)
+library(ggpubr)
 library(gdata)
 library(ggfortify)
 library(stringr)
