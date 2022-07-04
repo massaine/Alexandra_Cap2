@@ -22,7 +22,7 @@ library(factoextra)
 library(RColorBrewer)
 library(dplyr)
 library(viridis)
-
+install.packages("")
 load(file=here::here("output","blups_EP.RData"))
 ```
 
@@ -165,9 +165,24 @@ dev.off()
 
 ## PLOTS CLUSTERS EP1
 ```{r}
+########################### Barraestat no Plot
+#ep1$cluster <- as.factor(ep1$cluster)
+
+#stat.test.1 <- ep1%>%
+ # group_by() %>%
+  #tukey_hsd(NP ~as.factor(cluster)) 
+#stat.test.1 
+
+#stat.test.1 <- stat.test.1 %>% add_xy_position(x = "cluster", scales = "free")
+
 p1 <- ggplot(ep1, aes(x=as.factor(cluster), y=NP, fill=as.factor(cluster))) + xlab("Cluster") +
-  geom_boxplot(outlier.shape = NA)  +  theme_bw() + theme(legend.position="none") + ggtitle("Epoca 1")+
-  ylim(2, 16)+scale_fill_manual(values = c("#7AD151FF","#2A788EFF","#440154FF","#FDE725FF")) 
+  geom_boxplot(outlier.shape = NA)  +  theme_bw() + theme(legend.position="none") + ggtitle("Epoca 1")+#stat_pvalue_manual(stat.test.1, hide.ns = TRUE, tip.length = 0, step.increase = 0)+
+  +ylim(2, 16)+scale_fill_manual(values = c("#7AD151FF","#2A788EFF","#440154FF","#FDE725FF"))
+
+
+
+
+
 
 p2 <- ggplot(ep1, aes(x=as.factor(cluster), y=NM, fill=as.factor(cluster))) +  xlab("Cluster") +
   geom_boxplot(outlier.shape = NA) + theme_bw() + theme(legend.position="none") + ggtitle(" ") + ylim(0.2, 0.8) +   scale_fill_manual(values = c("#7AD151FF","#2A788EFF","#440154FF","#FDE725FF")) 
