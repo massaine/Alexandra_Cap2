@@ -21,7 +21,9 @@ library(factoextra)
 library(RColorBrewer)
 library(dplyr)
 library(viridis)
-
+library(rstatix)
+library(emmeans)
+library(ggpubr)
 load(file=here::here("output","blups_EP.RData"))
 ```
 
@@ -48,29 +50,78 @@ BLUPs$Epoca <- as.factor(BLUPs$Epoca)
 
 ## BOXPLOT GERAL
 ```{r}
-c1 <- ggplot(BLUPs, aes(x=Epoca, y=NP)) + xlab("Epocas de plantio") +
-  geom_boxplot(outlier.shape = NA,fill="#7AD151FF")+theme_bw()+theme(legend.position="none")+
-  ylim(2, 16)
 
-c2 <- ggplot(BLUPs, aes(x=Epoca, y=NM)) +  xlab("Epocas de plantio") +
-  geom_boxplot(outlier.shape = NA,fill="#7AD151FF") + theme_bw() + theme(legend.position="none")+
-  ylim(0.2, 0.8)
+BLUPs$Epoca <- as.factor(BLUPs$Epoca)
 
-c3 <- ggplot(BLUPs, aes(x=Epoca, y=ND1R)) +  xlab("Epocas de plantio") +
-  geom_boxplot(outlier.shape = NA,fill="#7AD151FF") + theme_bw()+  theme(legend.position="none")+ 
-  ylim(100, 300) 
+############NP
+stat.test.a <- BLUPs%>%
+  #group_by() %>%
+  tukey_hsd(NP ~Epoca ) 
+stat.test.a
 
-c4 <- ggplot(BLUPs, aes(x=Epoca, y=NER)) +  xlab("Epocas de plantio") +
-  geom_boxplot(outlier.shape = NA,fill="#7AD151FF")+ theme_bw() +  theme(legend.position="none")+
-  ylim(2, 7)
+stat.test.a <- stat.test.a %>% add_xy_position(x = "Epoca", scales = "free")
 
-c5 <- ggplot(BLUPs, aes(x=Epoca, y=NTF)) +  xlab("Epocas de plantio") +
-  geom_boxplot(outlier.shape = NA,fill="#7AD151FF") + theme_bw()  +   theme(legend.position="none")+ 
-  ylim(0, 0.8)
+c1<- ggboxplot(BLUPs, x = "Epoca", y = "NP",outlier.shape = NA)+ stat_pvalue_manual(stat.test.a, hide.ns = TRUE, tip.length = 0, step.increase = 0)+ theme_bw()+ labs(y = "NP")+ ylim(2,20)+theme(legend.position="none")+geom_boxplot(outlier.shape = NA,fill="#7AD151FF")+xlab("Epocas de plantio") 
 
-c6 <- ggplot(BLUPs, aes(x=Epoca, y=A1R)) +  xlab("Epocas de plantio") +
-  geom_boxplot(outlier.shape = NA,fill="#7AD151FF") + theme_bw()  +   theme(legend.position="none")+ 
-  ylim(25, 200)
+############NM
+
+stat.test.b <- BLUPs%>%
+  #group_by() %>%
+  tukey_hsd(NM ~Epoca ) 
+stat.test.b
+
+stat.test.b <- stat.test.b %>% add_xy_position(x = "Epoca", scales = "free")
+
+c2<- ggboxplot(BLUPs, x = "Epoca", y = "NM",outlier.shape = NA)+ stat_pvalue_manual(stat.test.b, hide.ns = TRUE, tip.length = 0, step.increase = 0)+ theme_bw()+ labs(y = "NM")+ ylim(0.2,1)+theme(legend.position="none")+geom_boxplot(outlier.shape = NA,fill="#7AD151FF")+  xlab("Epocas de plantio") 
+
+############ND1R
+
+stat.test.c <- BLUPs%>%
+  #group_by() %>%
+  tukey_hsd(ND1R ~Epoca ) 
+stat.test.c
+
+stat.test.c <- stat.test.c %>% add_xy_position(x = "Epoca", scales = "free")
+
+
+c3<- ggboxplot(BLUPs, x = "Epoca", y = "ND1R",outlier.shape = NA)+ stat_pvalue_manual(stat.test.c, hide.ns = TRUE, tip.length = 0, step.increase = 0)+ theme_bw()+ labs(y = "ND1R")+ ylim(50,380)+theme(legend.position="none")+geom_boxplot(outlier.shape = NA,fill="#7AD151FF")+  xlab("Epocas de plantio") 
+
+############NER
+
+
+stat.test.d <- BLUPs%>%
+  #group_by() %>%
+  tukey_hsd(NER ~Epoca ) 
+stat.test.d
+
+stat.test.d <- stat.test.d %>% add_xy_position(x = "Epoca", scales = "free")
+
+
+c4<- ggboxplot(BLUPs, x = "Epoca", y = "NER",outlier.shape = NA)+ stat_pvalue_manual(stat.test.d, hide.ns = TRUE, tip.length = 0, step.increase = 0)+ theme_bw()+ labs(y = "NER")+ ylim(2,10)+theme(legend.position="none")+geom_boxplot(outlier.shape = NA,fill="#7AD151FF")+  xlab("Epocas de plantio") 
+
+############NTF
+stat.test.e <- BLUPs%>%
+  #group_by() %>%
+  tukey_hsd(NTF ~Epoca ) 
+stat.test.e
+
+stat.test.e <- stat.test.e %>% add_xy_position(x = "Epoca", scales = "free")
+
+
+c5<- ggboxplot(BLUPs, x = "Epoca", y = "NTF",outlier.shape = NA)+ stat_pvalue_manual(stat.test.e, hide.ns = TRUE, tip.length = 0, step.increase = 0)+ theme_bw()+ labs(y = "NTF")+ ylim(0,1.5)+theme(legend.position="none")+geom_boxplot(outlier.shape = NA,fill="#7AD151FF")+  xlab("Epocas de plantio") 
+
+
+############A1R
+stat.test.f <- BLUPs%>%
+  #group_by() %>%
+  tukey_hsd(A1R~Epoca ) 
+stat.test.f
+
+stat.test.f <- stat.test.f %>% add_xy_position(x = "Epoca", scales = "free")
+
+
+c6<- ggboxplot(BLUPs, x = "Epoca", y = "A1R",outlier.shape = NA)+ stat_pvalue_manual(stat.test.f, hide.ns = TRUE, tip.length = 0, step.increase = 0)+ theme_bw()+ labs(y = "A1R")+ ylim(25,300)+theme(legend.position="none")+geom_boxplot(outlier.shape = NA,fill="#7AD151FF")+  xlab("Epocas de plantio") 
+
 
 ```
 
@@ -83,8 +134,17 @@ dev.off()
 
 ## BOX PLOT POR GENOTIPOS
 ```{r}
-NP <- ggplot(dados3, aes(x=Epoca, y=NP, fill=as.factor(Epoca))) + xlab("Epocas de plantio") +
-  geom_boxplot(outlier.shape = NA)+theme_classic()+theme(legend.position="none")+ ylab("Nota de florescimento ponderado") + ylim(2, 22) + scale_fill_manual(values = c("#7AD151FF","#2A788EFF","darkorchid3","orange")) +       facet_wrap(~Acession_name, ncol = 6)
+
+dados3$Epoca <- as.factor(dados3$Epoca)
+stat.test.g <- dados3%>%
+  group_by(Acession_name) %>%
+  tukey_hsd(NP~Epoca ) 
+stat.test.g
+
+stat.test.g <- stat.test.g %>% add_xy_position(x = "Epoca", scales = "free")
+
+NP<- ggboxplot(dados3, x = "Epoca", y = "NP",fill="Epoca",outlier.shape = NA)+ stat_pvalue_manual(stat.test.g, hide.ns = TRUE, tip.length = 0, step.increase = 0)+ theme_classic()+theme(legend.position="none")+ylim(2,32)+
+  ylab("Nota de florescimento ponderado")+scale_fill_manual(values = c("#7AD151FF","#2A788EFF","darkorchid3","orange"))+facet_wrap(~Acession_name, ncol = 6)
 
 tiff(file = "NP_boxplot_Epocas_clone.tiff", width = 22, height = 26, res = 700, compression = "lzw", units = "cm")
 NP
@@ -92,8 +152,18 @@ dev.off()
 ```
 
 ```{r}
-NM <- ggplot(dados3, aes(x=Epoca, y=NM, fill=as.factor(Epoca))) + xlab("Epocas de plantio") +
-  geom_boxplot(outlier.shape = NA)+theme_classic()+theme(legend.position="none")+ylab("Nota media de florescimento") + ylim(0, 1.5) + scale_fill_manual(values = c("#7AD151FF","#2A788EFF","darkorchid3","orange")) +          facet_wrap(~Acession_name, ncol = 6)
+
+dados3$Epoca <- as.factor(dados3$Epoca)
+stat.test.h <- dados3%>%
+  group_by(Acession_name) %>%
+  tukey_hsd(NM~Epoca ) 
+stat.test.h
+
+stat.test.h <- stat.test.h %>% add_xy_position(x = "Epoca", scales = "free")
+
+NM<- ggboxplot(dados3, x = "Epoca", y = "NM",fill="Epoca",outlier.shape = NA)+ stat_pvalue_manual(stat.test.h, hide.ns = TRUE, tip.length = 0, step.increase = 0)+ theme_classic()+theme(legend.position="none")+ylim(0,1.6)+
+  ylab("Nota média de florescimento")+scale_fill_manual(values = c("#7AD151FF","#2A788EFF","darkorchid3","orange"))+facet_wrap(~Acession_name, ncol = 6)
+
 
 tiff(file = "NM_boxplot_Epocas_clone.tiff", width = 22, height = 26, res = 700, compression = "lzw", units = "cm")
 NM
@@ -101,9 +171,17 @@ dev.off()
 ```
 
 ```{r}
-NTF <- ggplot(dados3, aes(x=Epoca, y=NumTFruto, fill=as.factor(Epoca))) + xlab("Epocas de plantio") +
-  geom_boxplot(outlier.shape = NA)+theme_classic()+theme(legend.position="none")+ ylab("Numero total de frutos") +
-  ylim(0, 3) + scale_fill_manual(values = c("#7AD151FF","#2A788EFF","darkorchid3","orange")) +          facet_wrap(~Acession_name, ncol = 6)
+
+stat.test.i <- dados3%>%
+  group_by(Acession_name) %>%
+  tukey_hsd(NumTFruto~Epoca ) 
+stat.test.i
+
+stat.test.i <- stat.test.i %>% add_xy_position(x = "Epoca", scales = "free")
+
+NTF<- ggboxplot(dados3, x = "Epoca", y = "NumTFruto",fill="Epoca",outlier.shape = NA)+ stat_pvalue_manual(stat.test.i, hide.ns = TRUE, tip.length = 0, step.increase = 0)+ theme_classic()+theme(legend.position="none")+ylim(0,6)+
+  ylab("Numero total de frutos")+scale_fill_manual(values = c("#7AD151FF","#2A788EFF","darkorchid3","orange"))+facet_wrap(~Acession_name, ncol = 6)
+
 
 tiff(file = "NTF_boxplot_Epocas_clone.tiff", width = 22, height = 26, res = 700, compression = "lzw", units = "cm")
 NTF
@@ -112,8 +190,17 @@ dev.off()
 
 
 ```{r}
-NER <- ggplot(dados3, aes(x=Epoca, y=NumEvRam, fill=as.factor(Epoca))) + xlab("Epocas de plantio") +
-  geom_boxplot(outlier.shape = NA)+theme_classic()+theme(legend.position="none")+ylab("Numero de eventos de ramificação")+ ylim(0, 9) + scale_fill_manual(values = c("#7AD151FF","#2A788EFF","darkorchid3","orange")) +          facet_wrap(~Acession_name, ncol = 6)
+
+stat.test.j <- dados3%>%
+  group_by(Acession_name) %>%
+  tukey_hsd(NumEvRam~Epoca ) 
+stat.test.j
+
+stat.test.j <- stat.test.j %>% add_xy_position(x = "Epoca", scales = "free")
+
+NER<- ggboxplot(dados3, x = "Epoca", y = "NumEvRam",fill="Epoca",outlier.shape = NA)+ stat_pvalue_manual(stat.test.j, hide.ns = TRUE, tip.length = 0, step.increase = 0)+ theme_classic()+theme(legend.position="none")+ylim(0,15)+
+  ylab("Numero de eventos de ramificação")+scale_fill_manual(values = c("#7AD151FF","#2A788EFF","darkorchid3","orange"))+facet_wrap(~Acession_name, ncol = 6)
+
 
 tiff(file = "NER_boxplot_Epocas_clone.tiff", width = 22, height = 26, res = 700, compression = "lzw", units = "cm")
 NER
@@ -122,21 +209,40 @@ dev.off()
 
 
 ```{r}
-DI1R <- ggplot(dados3, aes(x=Epoca, y=DAPR1ano_Ext, fill=as.factor(Epoca))) + xlab("Epocas de plantio") +
-  geom_boxplot(outlier.shape = NA)+theme_classic()+theme(legend.position="none")+ylab("Dias início de ramificação")+
-  ylim(50, 400) + scale_fill_manual(values = c("#7AD151FF","#2A788EFF","darkorchid3","orange")) +          facet_wrap(~Acession_name, ncol = 6)
+
+
+stat.test.k <- dados3%>%
+  group_by(Acession_name) %>%
+  tukey_hsd(DAPR1ano_Ext~Epoca ) 
+stat.test.k
+
+stat.test.k <- stat.test.k %>% add_xy_position(x = "Epoca", scales = "free")
+
+D1R<- ggboxplot(dados3, x = "Epoca", y = "DAPR1ano_Ext",fill="Epoca",outlier.shape = NA)+ stat_pvalue_manual(stat.test.k, hide.ns = TRUE, tip.length = 0, step.increase = 0)+ theme_classic()+theme(legend.position="none")+ylim(50,450)+
+  ylab("Dias início de ramificação")+scale_fill_manual(values = c("#7AD151FF","#2A788EFF","darkorchid3","orange"))+facet_wrap(~Acession_name, ncol = 6)
+
 
 tiff(file = "DI1R_boxplot_Epocas_clone.tiff", width = 22, height = 26, res = 700, compression = "lzw", units = "cm")
-DI1R
+D1R
 dev.off()
 ```
 
 
 ```{r}
-A1R <- ggplot(dados3, aes(x=Epoca, y=CompR, fill=as.factor(Epoca))) + xlab("Epocas de plantio") +
-  geom_boxplot(outlier.shape = NA)+theme_classic()+theme(legend.position="none")+ ylab("Altura da primeira ramificação")+ ylim(0, 300) + scale_fill_manual(values = c("#7AD151FF","#2A788EFF","darkorchid3","orange")) +          facet_wrap(~Acession_name, ncol = 6)
 
-tiff(file = "A1R_boxplot_Epocas_clone.tiff", width = 22, height = 26, res = 700, compression = "lzw", units = "cm")
+
+stat.test.l <- dados3%>%
+  group_by(Acession_name) %>%
+  tukey_hsd(CompR~Epoca ) 
+stat.test.l
+
+stat.test.l <- stat.test.l %>% add_xy_position(x = "Epoca", scales = "free")
+
+A1R<- ggboxplot(dados3, x = "Epoca", y = "CompR",fill="Epoca",outlier.shape = NA)+ stat_pvalue_manual(stat.test.l, hide.ns = TRUE, tip.length = 0, step.increase = 0)+ theme_classic()+theme(legend.position="none")+ylim(0,420)+
+  ylab("Altura da primeira ramificação")+scale_fill_manual(values = c("#7AD151FF","#2A788EFF","darkorchid3","orange"))+facet_wrap(~Acession_name, ncol = 6)
+
+
+tiff(file = "A1R_boxplot_Epocas_clone.tiff", width = 22, height = 28, res = 700, compression = "lzw", units = "cm")
 A1R
 dev.off()
 

@@ -169,40 +169,91 @@ dev.off()
 ## PLOTS CLUSTERS EP1
 ```{r}
 ########################### Barraestat no Plot
-#ep1$cluster <- as.factor(ep1$cluster)
 
-#stat.test.1 <- ep1%>%
- # group_by() %>%
-  #tukey_hsd(NP ~as.factor(cluster)) 
-#stat.test.1 
-
-#stat.test.1 <- stat.test.1 %>% add_xy_position(x = "cluster", scales = "free")
-
-p1 <- ggplot(ep1, aes(x=as.factor(cluster), y=NP, fill=as.factor(cluster))) + xlab("Cluster") +
-  geom_boxplot(outlier.shape = NA)  +  theme_bw() + theme(legend.position="none") + ggtitle("Epoca 1")+#stat_pvalue_manual(stat.test.1, hide.ns = TRUE, tip.length = 0, step.increase = 0)+
-  +ylim(2, 16)+scale_fill_manual(values = c("#7AD151FF","#2A788EFF","#440154FF","#FDE725FF"))
+#####NP
 
 
+ep1$cluster <- as.factor(ep1$cluster)
+
+stat.test.1 <- ep1%>%
+  #group_by() %>%
+  tukey_hsd(NP ~cluster ) 
+stat.test.1 
+
+stat.test.1 <- stat.test.1 %>% add_xy_position(x = "cluster", scales = "free")
 
 
 
+####################Substituir GGPLOR POR GGBOXPLOT
 
-p2 <- ggplot(ep1, aes(x=as.factor(cluster), y=NM, fill=as.factor(cluster))) +  xlab("Cluster") +
-  geom_boxplot(outlier.shape = NA) + theme_bw() + theme(legend.position="none") + ggtitle(" ") + ylim(0.2, 0.8) +   scale_fill_manual(values = c("#7AD151FF","#2A788EFF","#440154FF","#FDE725FF")) 
+#p1 <- ggplot(ep1, aes(x=cluster, y=NP, fill=cluster))+ xlab("Cluster") +
+ # geom_boxplot(outlier.shape = NA)  +  theme_bw() + theme(legend.position="none") + #ggtitle("Epoca 1")+stat_pvalue_manual(stat.test.1, hide.ns = TRUE, tip.length = 0, #step.increase = 0)+ylim(2, 16)+scale_fill_manual(values = #c("#7AD151FF","#2A788EFF","#440154FF","#FDE725FF"))
 
-p3 <- ggplot(ep1, aes(x=as.factor(cluster), y=ND1R, fill=as.factor(cluster))) +  xlab("Cluster") +
-  geom_boxplot(outlier.shape = NA)   + theme_bw()+  theme(legend.position="none")  +ggtitle(" ") + ylim(100, 300) + scale_fill_manual(values = c("#7AD151FF","#2A788EFF","#440154FF","#FDE725FF")) 
 
-p4 <- ggplot(ep1, aes(x=as.factor(cluster), y=NER, fill=as.factor(cluster))) +  xlab("Cluster") +
-  geom_boxplot(outlier.shape = NA)+ theme_bw() +  theme(legend.position="none") +ggtitle(" ") +ylim(1.5, 7)+   scale_fill_manual(values = c("#7AD151FF","#2A788EFF","#440154FF","#FDE725FF")) 
+p1<- ggboxplot(ep1, x = "cluster", y = "NP", fill = "cluster",outlier.shape = NA)+ stat_pvalue_manual(stat.test.1, hide.ns = TRUE, tip.length = 0, step.increase = 0)+ theme_bw()+ labs(y = "NP")+ ylim(3,25)+
+  theme(legend.position="none")+scale_fill_manual(values = c("#7AD151FF","#2A788EFF","#440154FF","#FDE725FF"))
 
-p5 <- ggplot(ep1, aes(x=as.factor(cluster), y=NTF, fill=as.factor(cluster))) +  xlab("Cluster") +
-  geom_boxplot(outlier.shape = NA)   + theme_bw()  +   theme(legend.position="none") + ggtitle(" ") + 
-  ylim(0, 1.2)+ scale_fill_manual(values = c("#7AD151FF","#2A788EFF","#440154FF","#FDE725FF")) 
+############NM
 
-p6 <- ggplot(ep1, aes(x=as.factor(cluster), y=A1R, fill=as.factor(cluster))) +  xlab("Cluster") +
-  geom_boxplot(outlier.shape = NA)   + theme_bw()  +   theme(legend.position="none") + ggtitle(" ") + 
-  ylim(0, 200)+ scale_fill_manual(values = c("#7AD151FF","#2A788EFF","#440154FF","#FDE725FF")) 
+stat.test.2 <- ep1%>%
+  #group_by() %>%
+  tukey_hsd(NM ~cluster ) 
+stat.test.2 
+
+stat.test.2 <- stat.test.2 %>% add_xy_position(x = "cluster", scales = "free")
+
+p2<- ggboxplot(ep1, x = "cluster", y = "NM", fill = "cluster",outlier.shape = NA)+ stat_pvalue_manual(stat.test.2, hide.ns = TRUE, tip.length = 0, step.increase = 0)+ theme_bw()+ labs(y = "NM")+ ylim(0.2,1.3)+
+  theme(legend.position="none")+scale_fill_manual(values = c("#7AD151FF","#2A788EFF","#440154FF","#FDE725FF"))
+
+########### ND1R
+
+stat.test.3 <- ep1%>%
+  #group_by() %>%
+  tukey_hsd( ND1R~cluster ) 
+stat.test.3
+
+stat.test.3 <- stat.test.3 %>% add_xy_position(x = "cluster", scales = "free")
+
+p3<- ggboxplot(ep1, x = "cluster", y = "ND1R", fill = "cluster",outlier.shape = NA)+ stat_pvalue_manual(stat.test.3, hide.ns = TRUE, tip.length = 0, step.increase = 0)+ theme_bw()+ labs(y = "ND1R")+ ylim(70,350)+
+  theme(legend.position="none")+scale_fill_manual(values = c("#7AD151FF","#2A788EFF","#440154FF","#FDE725FF"))
+
+########### NER
+
+stat.test.4 <- ep1%>%
+  #group_by() %>%
+  tukey_hsd( NER~cluster ) 
+stat.test.4
+
+stat.test.4 <- stat.test.4 %>% add_xy_position(x = "cluster", scales = "free")
+
+p4<- ggboxplot(ep1, x = "cluster", y = "NER", fill = "cluster",outlier.shape = NA)+ stat_pvalue_manual(stat.test.4, hide.ns = TRUE, tip.length = 0, step.increase = 0)+ theme_bw()+ labs(y = "NER")+ ylim(2.2,11)+
+  theme(legend.position="none")+scale_fill_manual(values = c("#7AD151FF","#2A788EFF","#440154FF","#FDE725FF"))
+
+########### NTF
+
+stat.test.5 <- ep1%>%
+  #group_by() %>%
+  tukey_hsd( NTF~cluster ) 
+stat.test.5
+
+stat.test.5 <- stat.test.5 %>% add_xy_position(x = "cluster", scales = "free")
+
+p5<- ggboxplot(ep1, x = "cluster", y = "NTF", fill = "cluster",outlier.shape = NA)+ stat_pvalue_manual(stat.test.5, hide.ns = TRUE, tip.length = 0, step.increase = 0)+ theme_bw()+ labs(y = "NTF")+ ylim(0,2)+
+  theme(legend.position="none")+scale_fill_manual(values = c("#7AD151FF","#2A788EFF","#440154FF","#FDE725FF"))
+
+
+
+########### A1R
+
+stat.test.6 <- ep1%>%
+  #group_by() %>%
+  tukey_hsd( A1R~cluster ) 
+stat.test.6
+
+stat.test.6 <- stat.test.6 %>% add_xy_position(x = "cluster", scales = "free")
+
+p6<- ggboxplot(ep1, x = "cluster", y = "A1R", fill = "cluster",outlier.shape = NA)+ stat_pvalue_manual(stat.test.6, hide.ns = TRUE, tip.length = 0, step.increase = 0)+ theme_bw()+ labs(y = "A1R")+ ylim(30,350)+
+  theme(legend.position="none")+scale_fill_manual(values = c("#7AD151FF","#2A788EFF","#440154FF","#FDE725FF"))
 
 grid.arrange(p1,p2,p3,p4,p5,p6, ncol=6)
 
@@ -210,90 +261,266 @@ grid.arrange(p1,p2,p3,p4,p5,p6, ncol=6)
 
 ## PLOTS CLUSTERS EP2
 ```{r}
-g1 <- ggplot(ep2, aes(x=as.factor(cluster), y=NP, fill=as.factor(cluster))) + xlab("Cluster") +
-  geom_boxplot(outlier.shape = NA)  +  theme_bw() + theme(legend.position="none") +ggtitle("Epoca 2")+
-  ylim(2, 16)+scale_fill_manual(values = c("#7AD151FF","#2A788EFF","#440154FF","#FDE725FF")) 
 
-g2 <- ggplot(ep2, aes(x=as.factor(cluster), y=NM, fill=as.factor(cluster))) +  xlab("Cluster") +
-  geom_boxplot(outlier.shape = NA) + theme_bw() + theme(legend.position="none") + ggtitle(" ") + ylim(0.2, 0.8) +   scale_fill_manual(values = c("#7AD151FF","#2A788EFF","#440154FF","#FDE725FF")) 
+#####NP
 
-g3 <- ggplot(ep2, aes(x=as.factor(cluster), y=ND1R, fill=as.factor(cluster))) +  xlab("Cluster") +
-  geom_boxplot(outlier.shape = NA)   + theme_bw()+  theme(legend.position="none")  +ggtitle(" ") + ylim(100, 300) + scale_fill_manual(values = c("#7AD151FF","#2A788EFF","#440154FF","#FDE725FF")) 
+ep2$cluster <- as.factor(ep2$cluster)
 
-g4 <- ggplot(ep2, aes(x=as.factor(cluster), y=NER, fill=as.factor(cluster))) +  xlab("Cluster") +
-  geom_boxplot(outlier.shape = NA)+ theme_bw() +  theme(legend.position="none") +ggtitle(" ") +ylim(1.5, 7)+   scale_fill_manual(values = c("#7AD151FF","#2A788EFF","#440154FF","#FDE725FF")) 
+stat.test.7 <- ep2%>%
+  #group_by() %>%
+  tukey_hsd(NP ~cluster ) 
+stat.test.7 
 
-g5 <- ggplot(ep2, aes(x=as.factor(cluster), y=NTF, fill=as.factor(cluster))) +  xlab("Cluster") +
-  geom_boxplot(outlier.shape = NA)   + theme_bw()  +   theme(legend.position="none") + ggtitle(" ") + 
-  ylim(0, 1.2)+ scale_fill_manual(values = c("#7AD151FF","#2A788EFF","#440154FF","#FDE725FF")) 
+stat.test.7 <- stat.test.7 %>% add_xy_position(x = "cluster", scales = "free")
 
-g6 <- ggplot(ep2, aes(x=as.factor(cluster), y=A1R, fill=as.factor(cluster))) +  xlab("Cluster") +
-  geom_boxplot(outlier.shape = NA)   + theme_bw()  +   theme(legend.position="none") + ggtitle(" ") + 
-  ylim(0, 200)+ scale_fill_manual(values = c("#7AD151FF","#2A788EFF","#440154FF","#FDE725FF")) 
+g1<- ggboxplot(ep2, x = "cluster", y = "NP", fill = "cluster",outlier.shape = NA)+ stat_pvalue_manual(stat.test.7, hide.ns = TRUE, tip.length = 0, step.increase = 0)+ theme_bw()+ labs(y = "NP")+ ylim(3,25)+
+  theme(legend.position="none")+scale_fill_manual(values = c("#7AD151FF","#2A788EFF","#440154FF","#FDE725FF"))
+
+############NM
+
+stat.test.8 <- ep2%>%
+  #group_by() %>%
+  tukey_hsd(NM ~cluster ) 
+stat.test.8
+
+stat.test.8 <- stat.test.8 %>% add_xy_position(x = "cluster", scales = "free")
+
+g2<- ggboxplot(ep2, x = "cluster", y = "NM", fill = "cluster",outlier.shape = NA)+ stat_pvalue_manual(stat.test.8, hide.ns = TRUE, tip.length = 0, step.increase = 0)+ theme_bw()+ labs(y = "NM")+ ylim(0.2,1.3)+
+  theme(legend.position="none")+scale_fill_manual(values = c("#7AD151FF","#2A788EFF","#440154FF","#FDE725FF"))
+
+########### ND1R
+
+stat.test.9 <- ep2%>%
+  #group_by() %>%
+  tukey_hsd( ND1R~cluster ) 
+stat.test.9
+
+stat.test.9 <- stat.test.9 %>% add_xy_position(x = "cluster", scales = "free")
+
+g3<- ggboxplot(ep2, x = "cluster", y = "ND1R", fill = "cluster",outlier.shape = NA)+ stat_pvalue_manual(stat.test.3, hide.ns = TRUE, tip.length = 0, step.increase = 0)+ theme_bw()+ labs(y = "ND1R")+ ylim(70,350)+
+  theme(legend.position="none")+scale_fill_manual(values = c("#7AD151FF","#2A788EFF","#440154FF","#FDE725FF"))
+
+
+########### NER
+
+stat.test.10 <- ep2%>%
+  #group_by() %>%
+  tukey_hsd( NER~cluster ) 
+stat.test.10
+
+stat.test.10 <- stat.test.10 %>% add_xy_position(x = "cluster", scales = "free")
+
+g4<- ggboxplot(ep2, x = "cluster", y = "NER", fill = "cluster",outlier.shape = NA)+ stat_pvalue_manual(stat.test.10, hide.ns = TRUE, tip.length = 0, step.increase = 0)+ theme_bw()+ labs(y = "NER")+ ylim(2.2,11)+
+  theme(legend.position="none")+scale_fill_manual(values = c("#7AD151FF","#2A788EFF","#440154FF","#FDE725FF"))
+
+########### NTF
+
+stat.test.11 <- ep2%>%
+  #group_by() %>%
+  tukey_hsd( NTF~cluster ) 
+stat.test.11
+
+stat.test.11 <- stat.test.11 %>% add_xy_position(x = "cluster", scales = "free")
+
+g5<- ggboxplot(ep2, x = "cluster", y = "NTF", fill = "cluster",outlier.shape = NA)+ stat_pvalue_manual(stat.test.11, hide.ns = TRUE, tip.length = 0, step.increase = 0)+ theme_bw()+ labs(y = "NTF")+ ylim(0,2)+
+  theme(legend.position="none")+scale_fill_manual(values = c("#7AD151FF","#2A788EFF","#440154FF","#FDE725FF"))
+
+
+########### A1R
+
+stat.test.12 <- ep2%>%
+  #group_by() %>%
+  tukey_hsd( A1R~cluster ) 
+stat.test.12
+
+stat.test.12 <- stat.test.12 %>% add_xy_position(x = "cluster", scales = "free")
+
+g6<- ggboxplot(ep2, x = "cluster", y = "A1R", fill = "cluster",outlier.shape = NA)+ stat_pvalue_manual(stat.test.12, hide.ns = TRUE, tip.length = 0, step.increase = 0)+ theme_bw()+ labs(y = "A1R")+ ylim(30,350)+
+  theme(legend.position="none")+scale_fill_manual(values = c("#7AD151FF","#2A788EFF","#440154FF","#FDE725FF"))
+
+
 
 grid.arrange(g1,g2,g3,g4,g5,g6, ncol=6)
 ```
  
 
 ## plots ep 3
+
 ```{r}
-h1 <- ggplot(ep3, aes(x=as.factor(cluster), y=NP, fill=as.factor(cluster))) + xlab("Cluster") +
-  geom_boxplot(outlier.shape = NA)  +  theme_bw() + theme(legend.position="none") +ggtitle("Epoca 3")+
-  ylim(2, 16)+scale_fill_manual(values = c("#7AD151FF","#2A788EFF","darkorchid3","orange","black")) 
 
-h2 <- ggplot(ep3, aes(x=as.factor(cluster), y=NM, fill=as.factor(cluster))) +  xlab("Cluster") +
-  geom_boxplot(outlier.shape = NA) + theme_bw() + theme(legend.position="none") + ggtitle(" ") + ylim(0.2, 0.8) +   scale_fill_manual(values = c("#7AD151FF","#2A788EFF","darkorchid3","orange","black")) 
+#####NP
 
-h3 <- ggplot(ep3, aes(x=as.factor(cluster), y=ND1R, fill=as.factor(cluster))) +  xlab("Cluster") +
-  geom_boxplot(outlier.shape = NA)   + theme_bw()+  theme(legend.position="none")  +ggtitle(" ") + ylim(100, 300) + scale_fill_manual(values = c("#7AD151FF","#2A788EFF","darkorchid3","orange","black")) 
+ep3$cluster <- as.factor(ep3$cluster)
 
-h4 <- ggplot(ep3, aes(x=as.factor(cluster), y=NER, fill=as.factor(cluster))) +  xlab("Cluster") +
-  geom_boxplot(outlier.shape = NA)+ theme_bw() +  theme(legend.position="none") +ggtitle(" ") +ylim(1.5, 7)+   scale_fill_manual(values = c("#7AD151FF","#2A788EFF","darkorchid3","orange","black")) 
+stat.test.13 <- ep3%>%
+  #group_by() %>%
+  tukey_hsd(NP ~cluster ) 
+stat.test.13 
 
-h5 <- ggplot(ep3, aes(x=as.factor(cluster), y=NTF, fill=as.factor(cluster))) +  xlab("Cluster") +
-  geom_boxplot(outlier.shape = NA)   + theme_bw()  +   theme(legend.position="none") + ggtitle(" ") + 
-  ylim(0, 1.2)+ scale_fill_manual(values = c("#7AD151FF","#2A788EFF","darkorchid3","orange","black")) 
+stat.test.13 <- stat.test.13 %>% add_xy_position(x = "cluster", scales = "free")
 
-h6 <- ggplot(ep3, aes(x=as.factor(cluster), y=A1R, fill=as.factor(cluster))) +  xlab("Cluster") +
-  geom_boxplot(outlier.shape = NA)   + theme_bw()  +   theme(legend.position="none") + ggtitle(" ") + 
-  ylim(0, 200)+ scale_fill_manual(values = c("#7AD151FF","#2A788EFF","darkorchid3","orange","black")) 
 
-grid.arrange(h1,h2,h3,h4,h5,h6, ncol=6)
+h1<- ggboxplot(ep3, x = "cluster", y = "NP", fill = "cluster",outlier.shape = NA)+ stat_pvalue_manual(stat.test.13, hide.ns = TRUE, tip.length = 0, step.increase = 0)+ theme_bw()+ labs(y = "NP")+ ylim(3,25)+
+  theme(legend.position="none")+scale_fill_manual(values = c("#7AD151FF","#2A788EFF","darkorchid3","orange","black"))
+
+############NM
+
+stat.test.14 <- ep3%>%
+  #group_by() %>%
+  tukey_hsd(NM ~cluster ) 
+stat.test.14 
+
+stat.test.14 <- stat.test.14 %>% add_xy_position(x = "cluster", scales = "free")
+
+h2<- ggboxplot(ep3, x = "cluster", y = "NM", fill = "cluster",outlier.shape = NA)+ stat_pvalue_manual(stat.test.14, hide.ns = TRUE, tip.length = 0, step.increase = 0)+ theme_bw()+ labs(y = "NM")+ ylim(0.2,1.3)+
+  theme(legend.position="none")+scale_fill_manual(values = c("#7AD151FF","#2A788EFF","darkorchid3","orange","black"))
+
+########### ND1R
+
+stat.test.15 <- ep3%>%
+  #group_by() %>%
+  tukey_hsd( ND1R~cluster ) 
+stat.test.15
+
+stat.test.15 <- stat.test.15 %>% add_xy_position(x = "cluster", scales = "free")
+
+h3<- ggboxplot(ep3, x = "cluster", y = "ND1R", fill = "cluster",outlier.shape = NA)+ stat_pvalue_manual(stat.test.15, hide.ns = TRUE, tip.length = 0, step.increase = 0)+ theme_bw()+ labs(y = "ND1R")+ ylim(70,350)+
+  theme(legend.position="none")+scale_fill_manual(values = c("#7AD151FF","#2A788EFF","darkorchid3","orange","black"))
+
+########### NER
+
+stat.test.16 <- ep3%>%
+  #group_by() %>%
+  tukey_hsd( NER~cluster ) 
+stat.test.16
+
+stat.test.16 <- stat.test.16 %>% add_xy_position(x = "cluster", scales = "free")
+
+h4<- ggboxplot(ep3, x = "cluster", y = "NER", fill = "cluster",outlier.shape = NA)+ stat_pvalue_manual(stat.test.16, hide.ns = TRUE, tip.length = 0, step.increase = 0)+ theme_bw()+ labs(y = "NER")+ ylim(2.2,11)+
+  theme(legend.position="none")+scale_fill_manual(values = c("#7AD151FF","#2A788EFF","darkorchid3","orange","black"))
+
+########### NTF
+
+stat.test.17 <- ep3%>%
+  #group_by() %>%
+  tukey_hsd( NTF~cluster ) 
+stat.test.17
+
+stat.test.17 <- stat.test.17 %>% add_xy_position(x = "cluster", scales = "free")
+
+h5<- ggboxplot(ep3, x = "cluster", y = "NTF", fill = "cluster",outlier.shape = NA)+ stat_pvalue_manual(stat.test.17, hide.ns = TRUE, tip.length = 0, step.increase = 0)+ theme_bw()+ labs(y = "NTF")+ ylim(0,2)+
+  theme(legend.position="none")+scale_fill_manual(values = c("#7AD151FF","#2A788EFF","darkorchid3","orange","black")) 
+
+########### A1R
+
+stat.test.18 <- ep3%>%
+  #group_by() %>%
+  tukey_hsd( A1R~cluster ) 
+stat.test.18
+
+stat.test.18 <- stat.test.18 %>% add_xy_position(x = "cluster", scales = "free")
+
+h6<- ggboxplot(ep3, x = "cluster", y = "A1R", fill = "cluster",outlier.shape = NA)+ stat_pvalue_manual(stat.test.18, hide.ns = TRUE, tip.length = 0, step.increase = 0)+ theme_bw()+ labs(y = "A1R")+ ylim(30,350)+
+  theme(legend.position="none")+scale_fill_manual(values = c("#7AD151FF","#2A788EFF","darkorchid3","orange","black")) 
+
+
+
+grid.arrange(h1,h2,h3,h4,h5,h6, ncol=3)
+
+
 ```
 
 ## plots ep 4
 ```{r}
-d1 <- ggplot(ep4, aes(x=as.factor(cluster), y=NP, fill=as.factor(cluster))) + xlab("Cluster") +
-  geom_boxplot(outlier.shape = NA)  +  theme_bw() + theme(legend.position="none") +ggtitle("Epoca 4")+
-  ylim(2, 16)+scale_fill_manual(values = c("#7AD151FF","#2A788EFF","darkorchid3","orange","black")) 
 
-d2 <- ggplot(ep4, aes(x=as.factor(cluster), y=NM, fill=as.factor(cluster))) +  xlab("Cluster") +
-  geom_boxplot(outlier.shape = NA) + theme_bw() + theme(legend.position="none") + ggtitle(" ") + ylim(0.2, 0.8) +   scale_fill_manual(values = c("#7AD151FF","#2A788EFF","darkorchid3","orange","black")) 
+#####NP
 
-d3 <- ggplot(ep4, aes(x=as.factor(cluster), y=ND1R, fill=as.factor(cluster))) +  xlab("Cluster") +
-  geom_boxplot(outlier.shape = NA)   + theme_bw()+  theme(legend.position="none")  +ggtitle(" ") + ylim(100, 300) + scale_fill_manual(values = c("#7AD151FF","#2A788EFF","darkorchid3","orange","black")) 
+ep4$cluster <- as.factor(ep4$cluster)
 
-d4 <- ggplot(ep4, aes(x=as.factor(cluster), y=NER, fill=as.factor(cluster))) +  xlab("Cluster") +
-  geom_boxplot(outlier.shape = NA)+ theme_bw() +  theme(legend.position="none") +ggtitle(" ") +ylim(1.5, 7)+   scale_fill_manual(values = c("#7AD151FF","#2A788EFF","darkorchid3","orange","black")) 
+stat.test.19 <- ep4%>%
+  #group_by() %>%
+  tukey_hsd(NP ~cluster ) 
+stat.test.19 
 
-d5 <- ggplot(ep4, aes(x=as.factor(cluster), y=NTF, fill=as.factor(cluster))) +  xlab("Cluster") +
-  geom_boxplot(outlier.shape = NA)   + theme_bw()  +   theme(legend.position="none") + ggtitle(" ") + 
-  ylim(0, 1.2)+ scale_fill_manual(values = c("#7AD151FF","#2A788EFF","darkorchid3","orange","black")) 
+stat.test.19 <- stat.test.19 %>% add_xy_position(x = "cluster", scales = "free")
 
-d6 <- ggplot(ep4, aes(x=as.factor(cluster), y=A1R, fill=as.factor(cluster))) +  xlab("Cluster") +
-  geom_boxplot(outlier.shape = NA)   + theme_bw()  +   theme(legend.position="none") + ggtitle(" ") + 
-  ylim(0, 200)+ scale_fill_manual(values = c("#7AD151FF","#2A788EFF","darkorchid3","orange","black")) 
+
+d1<- ggboxplot(ep4, x = "cluster", y = "NP", fill = "cluster",outlier.shape = NA)+ stat_pvalue_manual(stat.test.19, hide.ns = TRUE, tip.length = 0, step.increase = 0)+ theme_bw()+ labs(y = "NP")+ ylim(3,25)+
+  theme(legend.position="none")+scale_fill_manual(values = c("#7AD151FF","#2A788EFF","darkorchid3","orange","black"))
+
+############NM
+
+stat.test.20 <- ep4%>%
+  #group_by() %>%
+  tukey_hsd(NM ~cluster ) 
+stat.test.20 
+
+stat.test.20 <- stat.test.20 %>% add_xy_position(x = "cluster", scales = "free")
+
+d2<- ggboxplot(ep4, x = "cluster", y = "NM", fill = "cluster",outlier.shape = NA)+ stat_pvalue_manual(stat.test.20, hide.ns = TRUE, tip.length = 0, step.increase = 0)+ theme_bw()+ labs(y = "NM")+ ylim(0.2,1.3)+
+  theme(legend.position="none")+scale_fill_manual(values = c("#7AD151FF","#2A788EFF","darkorchid3","orange","black"))
+
+########## ND1R
+
+stat.test.21 <- ep4%>%
+  #group_by() %>%
+  tukey_hsd( ND1R~cluster ) 
+stat.test.21
+
+stat.test.21 <- stat.test.21 %>% add_xy_position(x = "cluster", scales = "free")
+
+d3<- ggboxplot(ep4, x = "cluster", y = "ND1R", fill = "cluster",outlier.shape = NA)+ stat_pvalue_manual(stat.test.21, hide.ns = TRUE, tip.length = 0, step.increase = 0)+ theme_bw()+ labs(y = "ND1R")+ ylim(70,280)+
+  theme(legend.position="none")+scale_fill_manual(values = c("#7AD151FF","#2A788EFF","darkorchid3","orange","black"))
+
+########### NER
+
+stat.test.22 <- ep4%>%
+  #group_by() %>%
+  tukey_hsd( NER~cluster ) 
+stat.test.22
+
+stat.test.22 <- stat.test.22 %>% add_xy_position(x = "cluster", scales = "free")
+
+d4<- ggboxplot(ep4, x = "cluster", y = "NER", fill = "cluster",outlier.shape = NA)+ stat_pvalue_manual(stat.test.22, hide.ns = TRUE, tip.length = 0, step.increase = 0)+ theme_bw()+ labs(y = "NER")+ ylim(2.2,11)+
+  theme(legend.position="none")+scale_fill_manual(values = c("#7AD151FF","#2A788EFF","darkorchid3","orange","black"))
+
+
+########### NTF
+
+stat.test.23 <- ep4%>%
+  #group_by() %>%
+  tukey_hsd( NTF~cluster ) 
+stat.test.23
+
+stat.test.23 <- stat.test.23 %>% add_xy_position(x = "cluster", scales = "free")
+
+d5<- ggboxplot(ep4, x = "cluster", y = "NTF", fill = "cluster",outlier.shape = NA)+ stat_pvalue_manual(stat.test.23, hide.ns = TRUE, tip.length = 0, step.increase = 0)+ theme_bw()+ labs(y = "NTF")+ ylim(0,2)+
+  theme(legend.position="none")+scale_fill_manual(values = c("#7AD151FF","#2A788EFF","darkorchid3","orange","black"))
+
+########### A1R
+
+stat.test.24 <- ep4%>%
+  #group_by() %>%
+  tukey_hsd( A1R~cluster ) 
+stat.test.24
+
+stat.test.24 <- stat.test.24 %>% add_xy_position(x = "cluster", scales = "free")
+
+d6<- ggboxplot(ep4, x = "cluster", y = "A1R", fill = "cluster",outlier.shape = NA)+ stat_pvalue_manual(stat.test.24, hide.ns = TRUE, tip.length = 0, step.increase = 0)+ theme_bw()+ labs(y = "A1R")+ ylim(30,350)+
+  theme(legend.position="none")+scale_fill_manual(values = c("#7AD151FF","#2A788EFF","darkorchid3","orange","black"))
+ 
 
 grid.arrange(d1,d2,d3,d4,d5,d6, ncol=6)
 ```
 
 ## final plot clustrs
 ```{r}
-tiff(file = "Figura_Cluster.tiff", width = 24, height = 30, res = 700, compression = "lzw", units = "cm")
-grid.arrange(p1,p2,p3,p4,p5,p6,
-             g1,g2,g3,g4,g5,g6,
-             h1,h2,h3,h4,h5,h6,
-             d1,d2,d3,d4,d5,d6, ncol=6)
+tiff(file = "Figura_Cluster.tiff", width = 22, height = 30, res = 700, compression = "lzw", units = "cm")
+grid.arrange(p1,g1,h1,d1,p2,g2,h2,d2,p5,g5,h5,d5,ncol=4)
+dev.off()
+
+tiff(file = "Figura_Cluster_Pt2.tiff", width = 22, height = 30, res = 700, compression = "lzw", units = "cm")
+grid.arrange(p4,g4,h4,d4,p3,g3,h3,d3,p6,g6,h6,d6,ncol=4)            
 dev.off()
 ```
 
