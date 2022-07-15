@@ -10,8 +10,6 @@ editor_options:
 ## Analise de variancia Individual
 
 ```{r}
-
-
 library("lme4"); library(tidyverse)
 library("EnvStats")
 library("ggridges")
@@ -47,9 +45,8 @@ dados2 <- merge(dadost0, dados1, by = "plot_name", all.x=T)
 head(dados2)
 ```
 
-# Analise
+# Analise de variancia individual
 ```{r}
-model <- list()
 dados3 <- dados2[,c("Acession_name","bloco","plant_number","Epoca",
                     "DAPR1ano","DAPR1ano_Ext", "NumEvRam","Altura.total","CompR",
                     "NM","NP","NumTFruto", "NumTSem")]
@@ -57,6 +54,11 @@ dados3 <- dados2[,c("Acession_name","bloco","plant_number","Epoca",
 dados3$NumTFruto <- sqrt(dados3$NumTFruto)
 dados3$NumTSem <- sqrt(dados3$NumTSem)
 
+```
+
+
+```{r}
+model <- list()
 traits <- c("DAPR1ano_Ext", "NumEvRam","CompR","NM","NP","NumTFruto")
 blupsL <- list()
 model <- list()
@@ -67,18 +69,18 @@ parametrosL <- list()
 for (j in 1:4) {
 
   model[[j]] <- mmer(fixed =  cbind(DAPR1ano_Ext, NumEvRam,CompR,NM,NP,NumTFruto)
-                     ~ bloco, tolparinv = 0.5,
-              random = ~ Acession_name, getPEV = T, data = subset(dados3,dados3$Epoca==j) %>%                     
+                     ~ bloco,
+              random = ~ Acession_name, getPEV = T, data =     subset(dados3,dados3$Epoca==j) %>%                     
               droplevels(.$bloco))
   
   blups <- do.call(cbind,model[[j]]$U$Acession_name)
   Var_Cor <- as.data.frame(do.call(rbind,model[[j]]$sigma)) 
 
   for (i in 1:length(traits)) {  
-  #vblup <- sqrt(mean(diag(model[[1]]$PevU$Acession_name[[i]])))
+   vblup <- mean(diag(model[[1]]$PevU$Acession_name[[i]]))
    parametros[i,2] <- rownames(Var_Cor)[i]
    parametros[i,3] <- round(Var_Cor[i,i]/(Var_Cor[i,i] + (Var_Cor[length(traits)+i,i]/3)),2)
-   #parametros[i,4] <- 1 - (vblup / (2 * Var_Cor[i,i])) ## cullis
+   parametros[i,4] <- 1 - (vblup / (2 * Var_Cor[i,i])) ## cullis
    parametros[i,5] <- round(subset(model[[j]]$Beta,model[[j]]$Beta$Effect=="(Intercept)")[i,3],2)
    parametros[i,6] <- round(Var_Cor[i,i],2)
    parametros[i,7] <- round(Var_Cor[length(traits)+i,i],2)
@@ -93,11 +95,34 @@ for (j in 1:4) {
 Var_Cor$Componemte <- rep(c("Genetica","Residual"),each=6)
 Res.parametros <- do.call(rbind,parametrosL)
 colnames(Res.parametros) <- c("Epoca","Trait","Herdabilidade","H.Cullis","Media","Variancia","Residuo")
+Res.parametros$H.Cullis <- round(as.numeric(Res.parametros$H.Cullis),digits=2)
+Res.parametros%>% gt::gt()
+Var_Cor %>% gt::gt()
 
-save(Var_Cor,parametrosL,  blupsL,model, file=here::here("output","resultados.RData"))
-save(blupsL,dados3,file=here::here("output","blups_EP.RData"))
-save.image(file=here::here("output","Modelo.RData"))
+#save(Var_Cor,Res.parametros,model, file=here::here("output","resultados.RData"))
+#save(blupsL,dados3,file=here::here("output","blups_EP.RData"))
+#save.image(file=here::here("output","Modelo.RData"))
+## h2.cullis= 1 - (PEV.u/2*Vg)
 
 
+```
+
+
+## Analise de variancia conjunta
+```{r}
+
+ modelconj <- mmer(fixed =  cbind(DAPR1ano_Ext, NumEvRam,CompR,NM,NP,NumTFruto)
+                     ~ bloco + Epoca,
+              random = ~ Acession_name + Acession_name:Epoca, getPEV = T, data = dados3)
+
+#save(modelconj,file=here::here("output","modelconj.RData"))
+load(file=here::here("output","modelconj.RData"))
+  
+#blupsConj <- do.call(cbind,modelconj$U$Acession_name)
+#Var_Cor <- as.data.frame(do.call(rbind,modelconj$sigma)) 
+#Var_Cor$Componemte <- rep(c("Epoca:Genetica","Units"),each=6)
+  
+summary(modelconj)
+  
 ```
 
