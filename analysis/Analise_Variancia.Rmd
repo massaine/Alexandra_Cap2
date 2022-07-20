@@ -107,7 +107,6 @@ Var_Cor %>% gt::gt()
 
 ```
 
-
 ## Analise de variancia conjunta
 ```{r}
 
@@ -117,12 +116,46 @@ Var_Cor %>% gt::gt()
 
 #save(modelconj,file=here::here("output","modelconj.RData"))
 load(file=here::here("output","modelconj.RData"))
-  
-#blupsConj <- do.call(cbind,modelconj$U$Acession_name)
-#Var_Cor <- as.data.frame(do.call(rbind,modelconj$sigma)) 
-#Var_Cor$Componemte <- rep(c("Epoca:Genetica","Units"),each=6)
-  
+
+blupsConj <- do.call(cbind,modelconj$U$Acession_name)
+```
+
+## terceira tentativa model com interacao
+```{r}
+
+modelconj2 <- mmer(cbind(DAPR1ano_Ext, NumEvRam,CompR,NM,NP,NumTFruto)~1,
+                random= ~ Acession_name + Epoca + Acession_name:Epoca + Epoca:bloco,
+                rcov= ~ units, nIters=3,
+                data=dados3, verbose = FALSE)
+
+
+summary(modelconj2)$varcomp
+n.env <- 4
+vpredict(modelconj2 , h2 ~ V1 / ( V1 + (V3/n.env) + (V5/(2*n.env)) ) )
+
+Var_Cor <- as.data.frame(do.call(rbind,modelconj$sigma)) 
+Var_Cor$Componemte <- rep(c("Acession_name:Epoca","Units"),each=6)
+
+traits <- c("DAPR1ano_Ext", "NumEvRam","CompR","NM","NP","NumTFruto")
+
+## Em edição
+
+for (i in 1:length(traits)) {  
+   vblup <- mean(diag(modelconj$PevU$`Acession_name:Epoca`[[i]]))
+   parametros[i,2] <- rownames(Var_Cor)[i]
+   parametros[i,3] <- round(Var_Cor[i,i]/(Var_Cor[i,i] + (Var_Cor[length(traits)+i,i]/3)),2)
+   parametros[i,4] <- 1 - (vblup / (2 * Var_Cor[i,i])) ## cullis
+   parametros[i,5] <- round(subset(model[[j]]$Beta,model[[j]]$Beta$Effect=="(Intercept)")[i,3],2)
+   parametros[i,6] <- round(Var_Cor[i,i],2)
+   parametros[i,7] <- round(Var_Cor[length(traits)+i,i],2)
+   blups[,i] <- blups[,i]+subset(model[[j]]$Beta,model[[j]]$Beta$Effect=="(Intercept)")[i,3]
+
+
 summary(modelconj)
   
 ```
+
+
+
+
 
