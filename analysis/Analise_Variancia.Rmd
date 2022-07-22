@@ -16,6 +16,9 @@ library("ggridges")
 library(viridis)
 library(gridExtra)
 library(sommer)
+library(gt)
+library(dplyr)
+
 
 dados <- read.table(here::here("data", "Planilha epocas Junho22.txt"), header=T, sep="\t", na.strings="NA")
 dados <- dados[!is.na(dados$Ano),]
@@ -128,32 +131,94 @@ modelconj2 <- mmer(cbind(DAPR1ano_Ext, NumEvRam,CompR,NM,NP,NumTFruto)~1,
                 rcov= ~ units, nIters=3,
                 data=dados3, verbose = FALSE)
 
+```
 
-summary(modelconj2)$varcomp
+
+### Carregar RData
+```{r}
+load(file=here::here("output","modelconj2.RData"))
 n.env <- 4
-vpredict(modelconj2 , h2 ~ V1 / ( V1 + (V3/n.env) + (V5/(2*n.env)) ) )
-
-Var_Cor <- as.data.frame(do.call(rbind,modelconj$sigma)) 
-Var_Cor$Componemte <- rep(c("Acession_name:Epoca","Units"),each=6)
 
 traits <- c("DAPR1ano_Ext", "NumEvRam","CompR","NM","NP","NumTFruto")
+parametros <- matrix(NA,ncol=6,nrow=length(traits))
+colnames(parametros) <- c("Herdabilidade","Media","Var_G","Var_E","Var_GxE","Residuo")
 
-## Em edição
+## herdabilidade
+parametros[1,1] <- as.numeric((vpredict(modelconj2, h2 ~ V1 / ( V1 + (V43/n.env) + (V85/(2*n.env)))))[1])
+parametros[2,1] <- as.numeric((vpredict(modelconj2, h2 ~ V7 / ( V7 + (V49/n.env) + (V91/(2*n.env)))))[1])
+parametros[3,1] <- as.numeric((vpredict(modelconj2, h2 ~ V12 /(V12 + (V54/n.env) + (V96/(2*n.env)))))[1])
+parametros[4,1] <- as.numeric((vpredict(modelconj2, h2 ~ V16 /(V16 + (V58/n.env) + (V100/(2*n.env)))))[1])
+parametros[5,1] <- as.numeric((vpredict(modelconj2, h2 ~ V19 / (V19 + (V61/n.env) +(V103/(2*n.env)))))[1])
+parametros[6,1] <- as.numeric((vpredict(modelconj2, h2 ~ V21 / (V21 + (V63/n.env) + (V105/(2*n.env)))))[1])
 
-for (i in 1:length(traits)) {  
-   vblup <- mean(diag(modelconj$PevU$`Acession_name:Epoca`[[i]]))
-   parametros[i,2] <- rownames(Var_Cor)[i]
-   parametros[i,3] <- round(Var_Cor[i,i]/(Var_Cor[i,i] + (Var_Cor[length(traits)+i,i]/3)),2)
-   parametros[i,4] <- 1 - (vblup / (2 * Var_Cor[i,i])) ## cullis
-   parametros[i,5] <- round(subset(model[[j]]$Beta,model[[j]]$Beta$Effect=="(Intercept)")[i,3],2)
-   parametros[i,6] <- round(Var_Cor[i,i],2)
-   parametros[i,7] <- round(Var_Cor[length(traits)+i,i],2)
-   blups[,i] <- blups[,i]+subset(model[[j]]$Beta,model[[j]]$Beta$Effect=="(Intercept)")[i,3]
+## demais componentes
+comp <- as.data.frame(summary(modelconj2)$varcomp)
+comp <- subset(comp,comp$Constraint=="Positive")
+comp$seq <- seq(1:30)
+
+parametros[,2] <- round(modelconj2$Beta$Estimate,2)
+parametros[,3] <- round(comp$VarComp[1:6],2)
+parametros[,4] <- round(comp$VarComp[7:12],2)
+parametros[,5] <- round(comp$VarComp[13:18],2)
+parametros[,6] <- round(comp$VarComp[25:30],2)
+parametros <- as.data.frame(parametros)
+parametros$traits <- traits
 
 
-summary(modelconj)
-  
+parametros %>% gt() %>% tab_options(table.font.size = pct(75))
+
 ```
+
+
+## para aqui
+
+
+### script luciano
+```{r}
+library(magrittr)
+     # log likelihood of the model, AIC, convergence T/F
+     modelfit<-summary(modelconj)$logo
+     # number of groups for factors, could be used to compute DF 
+     groups<-summary(modelconj)$groups
+
+     # variance components
+     varcomp<-summary(modelconj)$varcomp
+     
+     # genotypic variance
+     Vg<-modelconj$sigma$Acession_name %>% as.vector() %>% mean()
+
+     # Mean error-variance across trials 
+     ## across heterogeneous error variance estimates
+     meanHetVarE<-modelconj$sigma$units %>% mean()
+     
+     # Mean number of reps per accession
+     meanNreps<-dados3 %>% count(Acession_name) %$% mean(n)
+     
+     # Broad-sense heritability
+     H2<-Vg/(Vg+(meanHetVarE/meanNreps))
+     
+ # Extract the BLUPs and PEVs, compute Reliability (REL), 
+     # de-regressed BLUPs and weights for downstream analysis
+     blups<-modelconj$U$Acession_name$Value %>% 
+          tibble(Acession_name=names(.),BLUP=.) %>% 
+          mutate(Acession_name=gsub("Acession_name","",Acession_name),
+                 PEV=diag(modelconj$PevU$Acession_name$Value), # prediction error variance
+                 REL=1-PEV/Vg, # Reliability
+                 drgBLUP=BLUP/REL, # De-regressed BLUP
+                 WT=(1-H2)/((0.1 + (1-REL)/REL)*H2) # weight for downstream
+          )
+     
+     # Combine all outputs into one object the function can return() 
+     out<-tibble(H2=H2,meanHetVarE=meanHetVarE,meanNreps=meanNreps,
+              #  modelfit=list(modelfit),
+                 groups=list(groups),
+                 blups=list(blups),
+                 varcomp=list(varcomp),
+                 outliers=list(outliers))
+
+
+```
+
 
 
 
