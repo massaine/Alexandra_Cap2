@@ -107,8 +107,27 @@ Var_Cor %>% gt::gt()
 #save.image(file=here::here("output","Modelo.RData"))
 ## h2.cullis= 1 - (PEV.u/2*Vg)
 
+```
+
+## Covariancia genética entre traits por época (analise multitrait)
+```{r}
+load(file=here::here("output","resultados.RData"))
+Var_cov_ep <- list()
+
+for (j in 1:4) {
+  Var_cov_ep[[j]] <- as.data.frame(do.call(rbind,model[[j]]$sigma))
+  Var_cov_ep[[j]]$epoca <- j
+}
+
+Var_cov_total <- as.data.frame(do.call(rbind,Var_cov_ep))
+Var_cov_total[,1:6] <- round(Var_cov_total[,1:6],2)
+Var_cov_total$trait <- rownames(Var_cov_total)
+Var_cov_total %>% gt::gt() 
 
 ```
+
+
+
 
 ## Analise de variancia conjunta
 ```{r}
