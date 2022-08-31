@@ -314,5 +314,88 @@ do.call("grid.arrange", c(tmed,Prec,GDA,GDAAc, ncol = 4,nrow=4))
 
 ```
 
+## Porcentagem de plantas inicio de Primeira ramificacao 
+```{r}
+
+dadosPlRam <- read.table(file=here::here("data","PorcPlantasRamPorQuinzena.txt"), header=T, sep="\t",
+                         na.strings="NA", strip.white=TRUE, check.names=FALSE)
+dadosPlRam$Epoca <-as.factor(dadosPlRam$Epoca)
+
+dadosPlRam  <- melt(dadosPlRam)
+dadosPlRam$EpQui <- paste(dadosPlRam$variable,dadosPlRam$Epoca,sep = "_Ep")
+
+#dadoscli$EpQui <- paste(dadoscli$Quinzena,dadoscli$Epoca,sep = "-Ep")
+dadosPlRam2 <- merge(dadosPlRam,dadoscliQ, by = "EpQui", all.x=T)
+
+```
+
+
+```{r}
+str(dadosPlRam2)
+
+GDDC <- list()
+TmedC <- list()
+PrecC <- list()
+dadosPlRam2$QuinN <- as.factor(dadosPlRam2$QuinN)
+
+for (i in 1:4) {
+TmedC[[i]] <- ggplot(data = subset(dadosPlRam2,dadosPlRam2$Epoca.x==i), aes(x=QuinN,y=value)) +
+                 geom_bar(stat="identity", width=0.5, aes(y=value*1),size=1,color='salmon', 
+                 fatten = 1,fill="salmon") + theme_bw() +
+                 geom_point(aes(x=QuinN,y=Tmed), inherit.aes = FALSE,color='blue') +
+                  scale_y_continuous(name = 'Temperatura média', 
+                 sec.axis = sec_axis(~ . /20,name = "Média Florescimento"),
+                 breaks = seq(0, 30, by = 10),limits = c(0, 30))+
+    
+                  theme(axis.text.y  = element_text(color = 'blue'),
+                  axis.title.y = element_text(color='blue'),
+                  axis.text.y.right =  element_text(color = 'salmon2'),
+                  axis.title.y.right = element_text(color='salmon2'),
+      panel.grid.major = element_blank(),
+      panel.grid.minor = element_blank())
+
+  PrecC[[i]] <- ggplot(data = subset(dadosPlRam2,dadosPlRam2$Epoca.x==i), aes(x=QuinN,group=1)) +
+                geom_bar(aes(y=value*5),stat="identity", width=0.5, size=1,color='salmon',fill="salmon") + 
+                geom_line(aes(y = Prec.),size=1, color = "blue") + theme_bw() +
+                 scale_y_continuous(name = 'Precipitação', 
+                 sec.axis = sec_axis(~ . /250,name = "Média Florescimento"),
+                 breaks = seq(0, 276, by = 50),limits = c(0, 276))+
+    
+      theme(axis.text.y  = element_text(color = 'blue'),
+      axis.title.y = element_text(color='blue'),
+      axis.text.y.right =  element_text(color = 'salmon2'),
+      axis.title.y.right = element_text(color='salmon2'),
+      panel.grid.major = element_blank(),
+      panel.grid.minor = element_blank())
+
+
+ GDDC[[i]] <- ggplot(data = subset(dadosPlRam2,dadosPlRam2$Epoca.x==i), aes(x=QuinN,y=value)) +
+                 geom_bar(stat="identity", width=0.5, aes(y=value*10),size=1,color='salmon', 
+                 fatten = 1,fill="salmon") + theme_bw() +
+                 geom_point(aes(x=QuinN,y=GDAAc/1), inherit.aes = FALSE,color='blue') +
+                  scale_y_continuous(name = 'Graus dias acumulados', 
+                 sec.axis = sec_axis(~ . /250,name = "Média Florescimento"),
+                 breaks = seq(0, 270, by = 50),limits = c(0, 270))+
+    
+   theme(axis.text.y  = element_text(color = 'blue'),
+    axis.title.y = element_text(color='blue'),
+    axis.text.y.right =  element_text(color = 'salmon2'),
+    axis.title.y.right = element_text(color='salmon2'),
+      panel.grid.major = element_blank(),
+      panel.grid.minor = element_blank())
+
+}
+
+do.call("grid.arrange", c(TmedC,GDDC,PrecC, ncol = 4,nrow = 3))
+
+
+```
+
+
+### Correlações entre Porcentagem de plantas (Inicio Ram) e Var climáticas
+## Nao deu certo
+
+
+
 
 
