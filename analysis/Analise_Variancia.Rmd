@@ -7,7 +7,7 @@ editor_options:
   chunk_output_type: console
 ---
 
-## Analise de variancia Individual
+## Analise de variancia Individual (tabela 3)
 
 ```{r}
 library("lme4"); library(tidyverse)
@@ -48,7 +48,7 @@ dados2 <- merge(dadost0, dados1, by = "plot_name", all.x=T)
 head(dados2)
 ```
 
-# Analise de variancia individual
+# Analise de variancia individual (tabela 3)
 ```{r}
 dados3 <- dados2[,c("Acession_name","bloco","plant_number","Epoca",
                     "DAPR1ano","DAPR1ano_Ext", "NumEvRam","Altura.total","CompR",
@@ -102,14 +102,9 @@ Res.parametros$H.Cullis <- round(as.numeric(Res.parametros$H.Cullis),digits=2)
 Res.parametros%>% gt::gt()
 Var_Cor %>% gt::gt()
 
-#save(Var_Cor,Res.parametros,model, file=here::here("output","resultados.RData"))
-#save(blupsL,dados3,file=here::here("output","blups_EP.RData"))
-#save.image(file=here::here("output","Modelo.RData"))
-## h2.cullis= 1 - (PEV.u/2*Vg)
-
 ```
 
-## Covariancia genética entre traits por época (analise multitrait)
+## Covariancia genética entre traits por época (analise multitrait) 
 ```{r}
 load(file=here::here("output","resultados.RData"))
 Var_cov_ep <- list()
@@ -129,7 +124,7 @@ Var_cov_total %>% gt::gt()
 
 
 
-## Analise de variancia conjunta
+## Analise de variancia conjunta (tabela 3)
 ```{r}
 
  modelconj <- mmer(fixed =  cbind(DAPR1ano_Ext, NumEvRam,CompR,NM,NP,NumTFruto)
@@ -189,54 +184,7 @@ parametros %>% gt() %>% tab_options(table.font.size = pct(75))
 ```
 
 
-## para aqui
 
-
-### script luciano
-```{r}
-library(magrittr)
-     # log likelihood of the model, AIC, convergence T/F
-     modelfit<-summary(modelconj)$logo
-     # number of groups for factors, could be used to compute DF 
-     groups<-summary(modelconj)$groups
-
-     # variance components
-     varcomp<-summary(modelconj)$varcomp
-     
-     # genotypic variance
-     Vg<-modelconj$sigma$Acession_name %>% as.vector() %>% mean()
-
-     # Mean error-variance across trials 
-     ## across heterogeneous error variance estimates
-     meanHetVarE<-modelconj$sigma$units %>% mean()
-     
-     # Mean number of reps per accession
-     meanNreps<-dados3 %>% count(Acession_name) %$% mean(n)
-     
-     # Broad-sense heritability
-     H2<-Vg/(Vg+(meanHetVarE/meanNreps))
-     
- # Extract the BLUPs and PEVs, compute Reliability (REL), 
-     # de-regressed BLUPs and weights for downstream analysis
-     blups<-modelconj$U$Acession_name$Value %>% 
-          tibble(Acession_name=names(.),BLUP=.) %>% 
-          mutate(Acession_name=gsub("Acession_name","",Acession_name),
-                 PEV=diag(modelconj$PevU$Acession_name$Value), # prediction error variance
-                 REL=1-PEV/Vg, # Reliability
-                 drgBLUP=BLUP/REL, # De-regressed BLUP
-                 WT=(1-H2)/((0.1 + (1-REL)/REL)*H2) # weight for downstream
-          )
-     
-     # Combine all outputs into one object the function can return() 
-     out<-tibble(H2=H2,meanHetVarE=meanHetVarE,meanNreps=meanNreps,
-              #  modelfit=list(modelfit),
-                 groups=list(groups),
-                 blups=list(blups),
-                 varcomp=list(varcomp),
-                 outliers=list(outliers))
-
-
-```
 
 
 

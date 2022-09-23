@@ -41,12 +41,14 @@ pcaplot <- autoplot(pca_raw, data = blupsL[[1]]) + theme_bw() +
   ylim(-0.5, 0.5) + xlim(-0.5, 0.5) + 
   ggtitle("EP1 - PCA") +  theme(legend.title = element_blank()) 
 
+
+### plots  (figura 3)
 plotKMEANS1 <- fviz_nbclust(dadosPCA3, kmeans, method = "silhouette")
 k2.1 <- kmeans(dadosPCA3, centers = 2, nstart = 25)
 p3.1 <- fviz_cluster(k2.1,  data = dadosPCA3) + ggtitle("Epoca 1") + theme_bw()
 dadosPCA3$cluster <- as.factor(k2.1$cluster)
 
-
+# plots (figura 4)
 pca1 <- autoplot(pca_raw, data = dadosPCA3, colour = 'cluster', 
                  label = TRUE, label.size = 3, loadings = TRUE, loadings.label = TRUE, 
                  loadings.label.size = 5,loadings.colour='gray') + ylim(-0.55, 0.5) + xlim(-0.5, 0.5) +  
@@ -72,12 +74,13 @@ pcaplot <- autoplot(pca_raw, data = blupsL[[2]]) + theme_bw() +
   ylim(-0.5, 0.5) + xlim(-0.5, 0.5) + 
   ggtitle("EP2 - PCA") +  theme(legend.title = element_blank()) 
 
+### plots  (figura 3)
 plotKMEANS2 <- fviz_nbclust(dadosPCA3, kmeans, method = "silhouette")
 k2.2 <- kmeans(dadosPCA3, centers = 2, nstart = 25)
 p3.2 <- fviz_cluster(k2.2,  data = dadosPCA3) + ggtitle("Epoca 2") + theme_bw()
 dadosPCA3$cluster <- as.factor(k2.2$cluster)
 
-
+### plots  (figura 4)
 pca2 <- autoplot(pca_raw, data = dadosPCA3, colour = 'cluster', 
                  label = TRUE, label.size = 3, loadings = TRUE, loadings.label = TRUE, 
                  loadings.label.size = 5,loadings.colour='gray') + ylim(-0.55, 0.5) + xlim(-0.5, 0.5) +  
@@ -101,11 +104,13 @@ pcaplot <- autoplot(pca_raw, data = blupsL[[3]]) + theme_bw() +
   ylim(-0.5, 0.5) + xlim(-0.5, 0.5) + 
   ggtitle("ep3 - PCA") +  theme(legend.title = element_blank()) 
 
+### plots  (figura 3)
 plotKMEANS3 <- fviz_nbclust(dadosPCA3, kmeans, method = "silhouette")
 k2.3 <- kmeans(dadosPCA3, centers = 5, nstart = 25)
 p3.3 <- fviz_cluster(k2.3,  data = dadosPCA3) + ggtitle("Epoca 2") + theme_bw()
 dadosPCA3$cluster <- as.factor(k2.3$cluster)
 
+### plots  (figura 4)
 pca3 <- autoplot(pca_raw, data = dadosPCA3, colour = 'cluster', 
                  label = TRUE, label.size = 3, loadings = TRUE, loadings.label = TRUE, 
                  loadings.label.size = 5,loadings.colour='gray') + ylim(-0.55, 0.5) + xlim(-0.5, 0.5) +  
@@ -130,11 +135,16 @@ pcaplot <- autoplot(pca_raw, data = blupsL[[4]]) + theme_bw() +
   ylim(-0.5, 0.5) + xlim(-0.5, 0.5) + 
   ggtitle("ep4 - PCA") +  theme(legend.title = element_blank()) 
 
+
+### plots  (figura 3)
+
 plotKMEANS4 <- fviz_nbclust(dadosPCA3, kmeans, method = "silhouette")
 k2.4 <- kmeans(dadosPCA3, centers = 4, nstart = 25)
 p3.4 <- fviz_cluster(k2.4,  data = dadosPCA3) + ggtitle("Epoca 2") + theme_bw()
 dadosPCA3$cluster <- as.factor(k2.4$cluster)
 
+
+### plots  (figura 4)
 pca4 <- autoplot(pca_raw, data = dadosPCA3, colour = 'cluster', 
                  label = TRUE, label.size = 3, loadings = TRUE, loadings.label = TRUE, 
                  loadings.label.size = 5,loadings.colour='gray') + ylim(-0.55, 0.5) + xlim(-0.5, 0.5) +  
@@ -146,9 +156,10 @@ colnames(ep4)[7] <- "cluster"
 PCi_4 <- data.frame(pca_raw$x,Cluster=dadosPCA3$cluster)
 table(ep4$cluster)
 
+
 ```
 
-## plots
+## salvar plots
 ```{r}
 tiff(file = "Figura_PCA_Epocas.tiff", width = 26, height = 26, res = 700, compression = "lzw", units = "cm")
 grid.arrange(pca1,
@@ -166,9 +177,9 @@ grid.arrange(plotKMEANS1,
 dev.off()
 ```
 
-## PLOTS CLUSTERS EP1
+## PLOTS CLUSTERS EP1 (figura 5)
 ```{r}
-########################### Barraestat no Plot
+########################### teste tukey
 
 #####NP
 
@@ -182,12 +193,6 @@ stat.test.1
 
 stat.test.1 <- stat.test.1 %>% add_xy_position(x = "cluster", scales = "free")
 
-
-
-####################Substituir GGPLOR POR GGBOXPLOT
-
-#p1 <- ggplot(ep1, aes(x=cluster, y=NP, fill=cluster))+ xlab("Cluster") +
- # geom_boxplot(outlier.shape = NA)  +  theme_bw() + theme(legend.position="none") + #ggtitle("Epoca 1")+stat_pvalue_manual(stat.test.1, hide.ns = TRUE, tip.length = 0, #step.increase = 0)+ylim(2, 16)+scale_fill_manual(values = #c("#7AD151FF","#2A788EFF","#440154FF","#FDE725FF"))
 
 
 p1<- ggboxplot(ep1, x = "cluster", y = "NP", fill = "cluster",outlier.shape = NA)+ stat_pvalue_manual(stat.test.1, hide.ns = TRUE, tip.length = 0, step.increase = 0)+ theme_bw()+ labs(y = "NP")+ ylim(3,25)+
@@ -259,7 +264,7 @@ grid.arrange(p1,p2,p3,p4,p5,p6, ncol=6)
 
 ```
 
-## PLOTS CLUSTERS EP2
+## PLOTS CLUSTERS EP2 (figura 5)
 ```{r}
 
 #####NP
@@ -344,7 +349,7 @@ grid.arrange(g1,g2,g3,g4,g5,g6, ncol=6)
 ```
  
 
-## plots ep 3
+## plots ep 3 (figura 5)
 
 ```{r}
 
@@ -430,7 +435,7 @@ grid.arrange(h1,h2,h3,h4,h5,h6, ncol=3)
 
 ```
 
-## plots ep 4
+## plots ep 4  (figura 5)
 ```{r}
 
 #####NP
@@ -513,7 +518,7 @@ d6<- ggboxplot(ep4, x = "cluster", y = "A1R", fill = "cluster",outlier.shape = N
 grid.arrange(d1,d2,d3,d4,d5,d6, ncol=6)
 ```
 
-## final plot clustrs
+##  salvar final plot clustrs
 ```{r}
 tiff(file = "Figura_Cluster.tiff", width = 22, height = 30, res = 700, compression = "lzw", units = "cm")
 grid.arrange(p1,g1,h1,d1,p2,g2,h2,d2,p5,g5,h5,d5,ncol=4)

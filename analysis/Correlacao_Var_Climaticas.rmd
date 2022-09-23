@@ -1,0 +1,415 @@
+---
+title: "Plots_Grupos_VarClima"
+author: "massaine"
+date: "2022-07-29"
+output: workflowr::wflow_html
+editor_options:
+  chunk_output_type: console
+---
+
+## Introduction
+
+```{r}
+library(gdata)
+library(ggfortify)
+library(stringr)
+library(ggplot2)
+library(RColorBrewer)
+library(ggpubr)
+library(gridExtra)
+library(adegenet)
+library(factoextra)
+library(RColorBrewer)
+library(dplyr)
+library(viridis)
+library(tidyr)
+library("ggpubr")
+
+load(file=here::here("output","blups_EP.RData"))
+load(file=here::here("output","EP_clusters.RData"))
+
+```
+
+## Dados climaticos
+
+```{r}
+dir()
+dadoscli <- read.table(file=here::here("data","DadosClimaticoscompleto.txt"), header=T, sep="\t", na.strings="NA")
+table(dadoscli$Epoca)
+Data1 <- paste(dadoscli$dia,dadoscli$mes,sep = "-")
+Data2 <- paste(Data1,dadoscli$ano,sep = "-")
+dadoscli$Datacod <- paste(Data2,dadoscli$Epoca,sep = "-")
+#Data1 <- paste(dadoscli$estacaoep1,dadoscli$Epoca,sep = "-")
+dadoscli$EstEpo <- paste(dadoscli$estacaoep1,dadoscli$Epoca,sep = "-")
+dadoscli$EstEpo <- as.factor(dadoscli$EstEpo)
+
+library(dplyr)
+colnames(dadoscli)
+dadoscli1 <-dadoscli%>%group_by(Epoca,EstEpo)%>%
+  summarise(T.max = mean(T.max, na.rm = T),
+            t.min = mean(t.min, na.rm = T),
+            Tmed = mean(Tmed, na.rm = T),
+            #Prec.Ac = mean(Prec.Ac, na.rm = T),
+            Prec. = sum(Prec., na.rm = T),
+            ADD = sum(ADD,na.rm=T))
+
+dadoscli$QuinN <- as.numeric(gsub("Q","",dadoscli$Quinzena))
+
+dadoscliQ <-dadoscli%>%group_by(Epoca,QuinN,Quinzena)%>%
+  summarise(T.max = mean(T.max, na.rm = T),
+            t.min = mean(t.min, na.rm = T),
+            Tmed = mean(Tmed, na.rm = T),
+            #Prec.Ac = mean(Prec.Ac, na.rm = T),
+            Prec. = sum(Prec., na.rm = T)
+            #ADD = sum(ADD,na.rm=T)
+            )
+
+GDAAc <- matrix(ncol = 1,nrow=24)
+XX <- list()
+dadoscliQ$GDA <- dadoscliQ$Tmed - 13
+
+for (j in 1:4) {
+ for (i in 1:23) {
+  x <- subset(dadoscliQ,dadoscliQ$Epoca==j)
+  GDAAc[1,1] <- x$GDA[1]
+  GDAAc[i+1,1] <- GDAAc[i,1]+x$GDA[i+1]
+  XX[[j]] <- GDAAc
+}}
+dadoscliQ$GDAAc <- do.call(rbind,XX)
+dadoscliQ$EpQui <- paste(dadoscliQ$Quinzena,dadoscliQ$Epoca,sep = "_Ep")
+
+```
+
+
+
+
+
+## Dados Notas de florescimento quinzenal (24 quinzenas)
+```{r}
+dadosF <- read.table(here::here("data", "DadosEpocas_NotaFloresv2.txt"), header=T, sep="\t", na.strings="NA", strip.white=TRUE, check.names=FALSE)
+dadosF$bloco <- as.factor(dadosF$bloco)
+dadosF$Acession_name <- as.factor(dadosF$Acession_name)
+dadosF$Epoca <- as.factor(dadosF$Epoca)
+dadosF <- dadosF[!dadosF$Acession_name=="BGM-0945",]
+dadosF <- dadosF[!dadosF$Acession_name=="BRS-PotiBranca",]
+
+#teste
+#dadosF <- dadosF[!dadosF$Acession_name=="NegaMaluca",]
+#dadosF <- dadosF[!dadosF$Acession_name=="Eucalipto",]
+#dadosF <- dadosF[!dadosF$Acession_name=="BGM-0593",]
+
+dadosF1 <-dadosF%>%group_by(Epoca)%>%
+  summarise(Q1m = mean(Q1, na.rm = T),Q2m = mean(Q2, na.rm = T),Q3m = mean(Q3, na.rm = T),
+           Q4m = mean(Q4, na.rm = T),Q5m = mean(Q5, na.rm = T),Q6m = mean(Q6, na.rm = T),
+           Q7m = mean(Q7, na.rm = T),Q8m = mean(Q8, na.rm = T),Q9m = mean(Q9, na.rm = T),
+           Q10m = mean(Q10, na.rm = T),Q11m = mean(Q11, na.rm = T),Q12m = mean(Q12, na.rm = T),
+           Q13m = mean(Q13, na.rm = T),Q14m = mean(Q14, na.rm = T),Q15m = mean(Q15, na.rm = T),
+           Q16m = mean(Q16, na.rm = T),Q17m = mean(Q17, na.rm = T),Q18m = mean(Q18, na.rm = T),
+            Q19m = mean(Q19, na.rm = T),Q20m = mean(Q20, na.rm = T),Q21m = mean(Q21, na.rm = T),
+           Q22m = mean(Q22, na.rm = T),Q23m = mean(Q23, na.rm = T),Q24m = mean(Q24, na.rm = T))
+
+library(reshape2)
+
+dadosF2 <- melt(dadosF1)
+dadosF2$variable <- as.factor(gsub("m","",dadosF2$variable))
+dadosF2$EpQui <- paste(dadosF2$variable,dadosF2$Epoca,sep = "_Ep")
+
+```
+
+
+## Preparar arquivos para juntar Pheno + Var Climáticas
+```{r}
+
+dadosTotal <- merge(dadoscliQ, dadosF2, by = "EpQui", all.x=T)
+dadosTotal$variable <- NULL
+dadosTotal$Epoca.y <- NULL
+dadosTotal$Quinzena <- as.factor(dadosTotal$Quinzena)
+dadosTotal$Epoca.x <- as.factor(dadosTotal$Epoca.x)
+dadosTotal$QuinN <- as.factor(dadosTotal$QuinN)
+str(dadosTotal)
+
+```
+
+
+```{r}
+
+######### plot figura 7
+###### média de florescimento / temperatura/ GDA E PRECIPITAÇÃO
+
+
+
+tmaxD <- list()
+tminD <- list()
+tmedD <- list()
+PrecD <- list()
+GDDD <- list()
+
+for (i in 1:4) {
+ 
+   tmedD[[i]] <- ggplot(data = subset(dadosTotal,dadosTotal$Epoca.x==i), aes(x=QuinN,y=value)) +
+                 geom_bar(stat="identity", width=0.5, aes(y=value*30),size=1,color='salmon', 
+                 fatten = 1,fill="salmon") + theme_bw() +
+                 geom_point(aes(x=QuinN,y=Tmed), inherit.aes = FALSE,color='blue') +
+                  scale_y_continuous(name = 'Temperatura média', 
+                 sec.axis = sec_axis(~ . /40,name = "Média Florescimento"),
+                 breaks = seq(0, 30, by = 10),limits = c(0, 30))+
+    
+                  theme(axis.text.y  = element_text(color = 'blue'),
+                  axis.title.y = element_text(color='blue'),
+                  axis.text.y.right =  element_text(color = 'salmon2'),
+                  axis.title.y.right = element_text(color='salmon2'),
+      panel.grid.major = element_blank(),
+      panel.grid.minor = element_blank())
+
+
+     tminD[[i]] <- ggplot(data = subset(dadosTotal,dadosTotal$Epoca.x==i), aes(x=QuinN,y=value)) +
+                 geom_point(aes(x=QuinN,y=t.min), inherit.aes = FALSE,color='blue') +
+                 geom_bar(stat="identity", width=0.5, aes(y=value*30),size=1,color='salmon', 
+                 fatten = 1,fill="salmon") + theme_bw() +
+                 scale_y_continuous(name = 'Temperatura minima', 
+                 sec.axis = sec_axis(~ (. -b)/a,name = "Média Florescimento"),
+                 breaks = seq(0, 30, by = 10),limits = c(0, 30))+
+    
+                  theme(axis.text.y  = element_text(color = 'blue'),
+                  axis.title.y = element_text(color='blue'),
+                  axis.text.y.right =  element_text(color = 'salmon2'),
+                  axis.title.y.right = element_text(color='salmon2'),
+      panel.grid.major = element_blank(),
+      panel.grid.minor = element_blank())
+     
+
+     tmaxD[[i]] <- ggplot(data = subset(dadosTotal,dadosTotal$Epoca.x==i), aes(x=QuinN,y=value)) +
+                   geom_bar(stat="identity", width=0.5, aes(y=value*100),size=1,color='salmon', 
+                   fatten = 1,fill="salmon")    +       
+                   geom_point(aes(x=QuinN,y=T.max), inherit.aes = FALSE,color='blue') +
+                 theme_bw() +
+                 scale_y_continuous(name = 'Temperatura máxima', 
+                 sec.axis = sec_axis(~ . /40,name = "Média Florescimento"),
+                 breaks = seq(0, 40, by = 10),limits = c(0, 40))+
+    
+                  theme(axis.text.y  = element_text(color = 'blue'),
+                  axis.title.y = element_text(color='blue'),
+                  axis.text.y.right =  element_text(color = 'salmon2'),
+                  axis.title.y.right = element_text(color='salmon2'),
+      panel.grid.major = element_blank(),
+      panel.grid.minor = element_blank())   
+
+
+
+  PrecD[[i]] <- ggplot(data = subset(dadosTotal,dadosTotal$Epoca.x==i), aes(x=QuinN,group=1)) +
+                geom_bar(aes(y=value*300),stat="identity", width=0.5, size=1,color='salmon',fill="salmon") + 
+                geom_line(aes(y = Prec.),size=1, color = "blue") + theme_bw() +
+                 scale_y_continuous(name = 'Precipitação', 
+                 sec.axis = sec_axis(~ . /250,name = "Média Florescimento"),
+                 breaks = seq(0, 276, by = 50),limits = c(0, 276))+
+    
+      theme(axis.text.y  = element_text(color = 'blue'),
+      axis.title.y = element_text(color='blue'),
+      axis.text.y.right =  element_text(color = 'salmon2'),
+      axis.title.y.right = element_text(color='salmon2'),
+      panel.grid.major = element_blank(),
+      panel.grid.minor = element_blank())
+
+
+ GDDD[[i]] <- ggplot(data = subset(dadosTotal,dadosTotal$Epoca.x==i), aes(x=QuinN,y=value)) +
+                 geom_bar(stat="identity", width=0.5, aes(y=value*250),size=1,color='salmon', 
+                 fatten = 1,fill="salmon") + theme_bw() +
+                 geom_point(aes(x=QuinN,y=GDAAc/1), inherit.aes = FALSE,color='blue') +
+                  scale_y_continuous(name = 'Graus dias acumulados', 
+                 sec.axis = sec_axis(~ . /250,name = "Média Florescimento"),
+                 breaks = seq(0, 270, by = 50),limits = c(0, 270))+
+    
+   theme(axis.text.y  = element_text(color = 'blue'),
+    axis.title.y = element_text(color='blue'),
+    axis.text.y.right =  element_text(color = 'salmon2'),
+    axis.title.y.right = element_text(color='salmon2'),
+      panel.grid.major = element_blank(),
+      panel.grid.minor = element_blank())
+
+}
+
+
+########### salvar plot
+
+do.call("grid.arrange", c(tmedD,GDDD,PrecD, ncol = 4,nrow = 3))
+tiff(file = "Plot_Var_Clima.tiff", width = 35, height = 37, res = 700, compression = "lzw", units = "cm")
+dev.off()
+
+
+```
+
+
+## checagem de clones
+```{r}
+dadosF3 <-dadosF%>%group_by(Epoca,Acession_name)%>%
+  summarise(Q1m = mean(Q1, na.rm = T),Q2m = mean(Q2, na.rm = T),Q3m = mean(Q3, na.rm = T),
+           Q4m = mean(Q4, na.rm = T),Q5m = mean(Q5, na.rm = T),Q6m = mean(Q6, na.rm = T),
+           Q7m = mean(Q7, na.rm = T),Q8m = mean(Q8, na.rm = T),Q9m = mean(Q9, na.rm = T),
+           Q10m = mean(Q10, na.rm = T),Q11m = mean(Q11, na.rm = T),Q12m = mean(Q12, na.rm = T),
+           Q13m = mean(Q13, na.rm = T),Q14m = mean(Q14, na.rm = T),Q15m = mean(Q15, na.rm = T),
+           Q16m = mean(Q16, na.rm = T),Q17m = mean(Q17, na.rm = T),Q18m = mean(Q18, na.rm = T),
+            Q19m = mean(Q19, na.rm = T),Q20m = mean(Q20, na.rm = T),Q21m = mean(Q21, na.rm = T),
+           Q22m = mean(Q22, na.rm = T),Q23m = mean(Q23, na.rm = T),Q24m = mean(Q24, na.rm = T))
+
+dadosF4 <- melt(dadosF3)
+dadosF4$variable <- as.factor(gsub("m","",dadosF4$variable))
+dadosF4$EpQui <- paste(dadosF4$variable,dadosF4$Epoca,sep = "_Ep")
+
+dadosF5 <-dadosF4%>%group_by(Acession_name)%>%
+  summarise(valuem = sum(value, na.rm = T))
+dadosF5 <- dadosF5 %>% arrange(desc(valuem))
+
+
+```
+
+
+
+
+### Correlações entre Florescimento e Var climáticas (FIGURA 8)
+```{r}
+colnames(dadosTotal)
+
+dadosTotal <- dadosTotal %>% drop_na()
+
+res <- matrix(NA, ncol = 13,nrow=4)
+tmax <- list()
+tmin <- list()
+tmed <- list()
+Prec <- list()
+GDA <- list()
+GDAAc <- list()
+
+i=1
+for (i in 1:4) {
+  dadosTotal1 <- subset(dadosTotal,dadosTotal$Epoca.x==i)
+  res[i,1] <- i
+  res[i,2] <- round(cor(dadosTotal1$value,dadosTotal1$T.max),2)
+  res[i,3] <- round(cor(dadosTotal1$value,dadosTotal1$t.min),2)
+  res[i,4] <- round(cor(dadosTotal1$value,dadosTotal1$Tmed),2)
+  res[i,5] <- round(cor(dadosTotal1$value,dadosTotal1$Prec.),2)
+  res[i,6] <- round(cor(dadosTotal1$value,dadosTotal1$GDA),2)   
+  res[i,7] <- round(cor(dadosTotal1$value,dadosTotal1$GDAAc),2)
+  
+  res[i,8] <- (cor.test(dadosTotal1$value,dadosTotal1$T.max, method=c("pearson")))$p.value 
+  res[i,9] <- (cor.test(dadosTotal1$value,dadosTotal1$t.min, method=c("pearson")))$p.value
+  res[i,10] <- (cor.test(dadosTotal1$value,dadosTotal1$Tmed, method=c("pearson")))$p.value
+  res[i,11] <- (cor.test(dadosTotal1$value,dadosTotal1$Prec., method=c("pearson")))$p.value
+  res[i,12] <-(cor.test(dadosTotal1$value,dadosTotal1$GDA, method=c("pearson")))$p.value
+  res[i,13] <-(cor.test(dadosTotal1$value,dadosTotal1$GDAAc, method=c("pearson")))$p.value
+
+  tmax[[i]] <- ggscatter(dadosTotal1, x = "value", y = "T.max", add = "reg.line", conf.int = TRUE, 
+               cor.coef = TRUE, cor.method = "pearson", xlab = paste("DAPR - Epoca",i,sep = " "), 
+               ylab = "Temperatura maxima")
+  tmin[[i]] <- ggscatter(dadosTotal1, x = "value", y = "t.min", add = "reg.line", conf.int = TRUE, 
+               cor.coef = TRUE, cor.method = "pearson",xlab = paste("DAPR - Epoca",i,sep = " "), 
+               ylab = "Temperatura minima")
+  tmed[[i]] <- ggscatter(dadosTotal1, x = "value", y = "Tmed", add = "reg.line", conf.int = TRUE, 
+               cor.coef = TRUE, cor.method = "pearson",xlab = paste("DAPR - Epoca",i,sep = " "), 
+               ylab = "Temperatura media")
+  Prec[[i]] <- ggscatter(dadosTotal1, x = "value", y = "Prec.", add = "reg.line", conf.int = TRUE, 
+               cor.coef = TRUE, cor.method = "pearson",xlab = paste("DAPR - Epoca",i,sep = " "), 
+               ylab = "Precipitacao acumulada")
+  GDA[[i]] <- ggscatter(dadosTotal1, x = "value", y = "GDA", add = "reg.line", conf.int = TRUE, 
+              cor.coef = TRUE, cor.method = "pearson",xlab = paste("DAPR - Epoca",i,sep = " "), 
+              ylab = "Graus dias por quinzena")
+  GDAAc[[i]] <- ggscatter(dadosTotal1, x = "value", y = "GDAAc", add = "reg.line", conf.int = TRUE, 
+              cor.coef = TRUE, cor.method = "pearson",xlab = paste("DAPR - Epoca",i,sep = " "), 
+              ylab = "Graus dias acumudados")
+}
+
+colnames(res) <- c("Epoca","T.max","t.min","Tmed","Prec.","GDA","GDAAc",
+                   "T.maxP","t.minP","TmedP","PrecP","GDAP","GDAAcP")
+
+res
+
+########## SALVAR PLOT 
+do.call("grid.arrange", c(tmed,Prec,GDA,GDAAc, ncol = 4,nrow=3))
+tiff(file = "Plot_Corr_Clima.tiff", width = 30, height = 30, res = 700, compression = "lzw", units = "cm")
+dev.off()
+```
+
+## Porcentagem de plantas inicio de Primeira ramificacao  (FIGURA 9)
+```{r}
+
+dadosPlRam <- read.table(file=here::here("data","PorcPlantasRamPorQuinzena.txt"), header=T, sep="\t",
+                         na.strings="NA", strip.white=TRUE, check.names=FALSE)
+dadosPlRam$Epoca <-as.factor(dadosPlRam$Epoca)
+
+dadosPlRam  <- melt(dadosPlRam)
+dadosPlRam$EpQui <- paste(dadosPlRam$variable,dadosPlRam$Epoca,sep = "_Ep")
+
+#dadoscli$EpQui <- paste(dadoscli$Quinzena,dadoscli$Epoca,sep = "-Ep")
+dadosPlRam2 <- merge(dadosPlRam,dadoscliQ, by = "EpQui", all.x=T)
+
+```
+
+
+```{r}
+str(dadosPlRam2)
+
+GDDC <- list()
+TmedC <- list()
+PrecC <- list()
+dadosPlRam2$QuinN <- as.factor(dadosPlRam2$QuinN)
+
+for (i in 1:4) {
+TmedC[[i]] <- ggplot(data = subset(dadosPlRam2,dadosPlRam2$Epoca.x==i), aes(x=QuinN,y=value)) +
+                 geom_bar(stat="identity", width=0.5, aes(y=value*1),size=1,color='salmon', 
+                 fatten = 1,fill="salmon") + theme_bw() +
+                 geom_point(aes(x=QuinN,y=Tmed), inherit.aes = FALSE,color='blue') +
+                  scale_y_continuous(name = 'Temperatura média', 
+                 sec.axis = sec_axis(~ . /20,name = "Média Florescimento"),
+                 breaks = seq(0, 30, by = 10),limits = c(0, 30))+
+    
+                  theme(axis.text.y  = element_text(color = 'blue'),
+                  axis.title.y = element_text(color='blue'),
+                  axis.text.y.right =  element_text(color = 'salmon2'),
+                  axis.title.y.right = element_text(color='salmon2'),
+      panel.grid.major = element_blank(),
+      panel.grid.minor = element_blank())
+
+  PrecC[[i]] <- ggplot(data = subset(dadosPlRam2,dadosPlRam2$Epoca.x==i), aes(x=QuinN,group=1)) +
+                geom_bar(aes(y=value*5),stat="identity", width=0.5, size=1,color='salmon',fill="salmon") + 
+                geom_line(aes(y = Prec.),size=1, color = "blue") + theme_bw() +
+                 scale_y_continuous(name = 'Precipitação', 
+                 sec.axis = sec_axis(~ . /250,name = "Média Florescimento"),
+                 breaks = seq(0, 276, by = 50),limits = c(0, 276))+
+    
+      theme(axis.text.y  = element_text(color = 'blue'),
+      axis.title.y = element_text(color='blue'),
+      axis.text.y.right =  element_text(color = 'salmon2'),
+      axis.title.y.right = element_text(color='salmon2'),
+      panel.grid.major = element_blank(),
+      panel.grid.minor = element_blank())
+
+
+ GDDC[[i]] <- ggplot(data = subset(dadosPlRam2,dadosPlRam2$Epoca.x==i), aes(x=QuinN,y=value)) +
+                 geom_bar(stat="identity", width=0.5, aes(y=value*10),size=1,color='salmon', 
+                 fatten = 1,fill="salmon") + theme_bw() +
+                 geom_point(aes(x=QuinN,y=GDAAc/1), inherit.aes = FALSE,color='blue') +
+                  scale_y_continuous(name = 'Graus dias acumulados', 
+                 sec.axis = sec_axis(~ . /250,name = "Média Florescimento"),
+                 breaks = seq(0, 270, by = 50),limits = c(0, 270))+
+    
+   theme(axis.text.y  = element_text(color = 'blue'),
+    axis.title.y = element_text(color='blue'),
+    axis.text.y.right =  element_text(color = 'salmon2'),
+    axis.title.y.right = element_text(color='salmon2'),
+      panel.grid.major = element_blank(),
+      panel.grid.minor = element_blank())
+
+}
+
+do.call("grid.arrange", c(TmedC,GDDC,PrecC, ncol = 4,nrow = 3))
+
+
+```
+
+
+### Correlações entre Porcentagem de plantas (Inicio Ram) e Var climáticas
+## Nao deu certo
+
+
+
+
+
