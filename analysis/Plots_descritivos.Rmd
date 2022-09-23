@@ -134,7 +134,7 @@ grid.arrange(c3,c1,c2,c5,c4,c6,ncol=3)
 dev.off()
 ```
 
-## BOX PLOT POR GENOTIPOS ( figuras s1 a s6)
+## BOX PLOT POR GENOTIPOS ( figuras s1 a s6)  
 ```{r}
 ######################NP
 

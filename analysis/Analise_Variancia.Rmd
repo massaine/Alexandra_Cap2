@@ -137,7 +137,7 @@ load(file=here::here("output","modelconj.RData"))
 blupsConj <- do.call(cbind,modelconj$U$Acession_name)
 ```
 
-## terceira tentativa model com interacao
+## terceira tentativa model com interacao 
 ```{r}
 
 modelconj2 <- mmer(cbind(DAPR1ano_Ext, NumEvRam,CompR,NM,NP,NumTFruto)~1,
@@ -148,7 +148,7 @@ modelconj2 <- mmer(cbind(DAPR1ano_Ext, NumEvRam,CompR,NM,NP,NumTFruto)~1,
 ```
 
 
-### Carregar RData
+### Carregar RData 
 ```{r}
 load(file=here::here("output","modelconj2.RData"))
 n.env <- 4

@@ -328,7 +328,7 @@ tiff(file = "Plot_Corr_Clima.tiff", width = 30, height = 30, res = 700, compress
 dev.off()
 ```
 
-## Porcentagem de plantas inicio de Primeira ramificacao  (FIGURA 9)
+## Porcentagem de plantas inicio de Primeira ramificacao  (FIGURA 9) 
 ```{r}
 
 dadosPlRam <- read.table(file=here::here("data","PorcPlantasRamPorQuinzena.txt"), header=T, sep="\t",

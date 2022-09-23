@@ -518,7 +518,7 @@ d6<- ggboxplot(ep4, x = "cluster", y = "A1R", fill = "cluster",outlier.shape = N
 grid.arrange(d1,d2,d3,d4,d5,d6, ncol=6)
 ```
 
-##  salvar final plot clustrs
+##  salvar final plot clustrs 
 ```{r}
 tiff(file = "Figura_Cluster.tiff", width = 22, height = 30, res = 700, compression = "lzw", units = "cm")
 grid.arrange(p1,g1,h1,d1,p2,g2,h2,d2,p5,g5,h5,d5,ncol=4)
