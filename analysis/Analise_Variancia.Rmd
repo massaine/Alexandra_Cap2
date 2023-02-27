@@ -20,7 +20,7 @@ library(gt)
 library(dplyr)
 
 
-dados <- read.table(here::here("data", "Planilha epocas Junho22.txt"), header=T, sep="\t", na.strings="NA")
+dados <- read.table(here::here("data", "Planilha epocas Fev23.txt"), header=T, sep="\t", na.strings="NA")
 dados <- dados[!is.na(dados$Ano),]
 dados$Obs <- factor(dados$Obs)
 dados <- dados[dados$Obs=="Ok",]
@@ -34,7 +34,7 @@ dados$Ramificacao <- factor(dados$Ramificacao)
 dadost0 <- subset(dados,dados$Ramificacao=="Ram0")
 dadost0$CompR <- as.numeric(dadost0$CompR)
 
-dados1 <- read.table(here::here("data", "DadosEpocas_NotaFloresV2.txt"), header=T, sep="\t", na.strings="NA", strip.white=TRUE, check.names=FALSE)
+dados1 <- read.table(here::here("data", "DadosEpocas_NotaFloresV3.txt"), header=T, sep="\t", na.strings="NA", strip.white=TRUE, check.names=FALSE)
 dados1$bloco <- as.factor(dados1$bloco)
 dados1$Acession_name <- as.factor(dados1$Acession_name)
 dados1$Epoca <- as.factor(dados1$Epoca)
@@ -42,7 +42,7 @@ dados1$NP <- sqrt(dados1$NP)
 dados1$NM <- sqrt(dados1$NM)
 dados1 <- dados1[!dados1$Acession_name=="BGM-0945",]
 dados1 <- dados1[!dados1$Acession_name=="BRS-PotiBranca",]
-dados1 <- dados1[,c(4,30:31)]
+dados1 <- dados1[,c(4,32:33)]
 
 dados2 <- merge(dadost0, dados1, by = "plot_name", all.x=T)
 head(dados2)
@@ -69,12 +69,12 @@ analise <- list()
 parametros <- matrix(NA,ncol=7,nrow=length(traits))
 parametrosL <- list()
 
-for (j in 1:4) {
+for (j in 1:6) {
 
   model[[j]] <- mmer(fixed =  cbind(DAPR1ano_Ext, NumEvRam,CompR,NM,NP,NumTFruto)
                      ~ bloco,
               random = ~ Acession_name, getPEV = T, data =     subset(dados3,dados3$Epoca==j) %>%                     
-              droplevels(.$bloco))
+              droplevels())
   
   blups <- do.call(cbind,model[[j]]$U$Acession_name)
   Var_Cor <- as.data.frame(do.call(rbind,model[[j]]$sigma)) 
@@ -109,7 +109,7 @@ Var_Cor %>% gt::gt()
 load(file=here::here("output","resultados.RData"))
 Var_cov_ep <- list()
 
-for (j in 1:4) {
+for (j in 1:6) {
   Var_cov_ep[[j]] <- as.data.frame(do.call(rbind,model[[j]]$sigma))
   Var_cov_ep[[j]]$epoca <- j
 }
